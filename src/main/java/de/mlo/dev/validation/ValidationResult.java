@@ -1,6 +1,5 @@
 package de.mlo.dev.validation;
 
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,8 +26,7 @@ public class ValidationResult {
      * @param validationResult An already existent result container
      * @return An instance of this {@link ValidationResult}
      */
-    @NotNull
-    public ValidationResult add(@NotNull ValidationResult validationResult) {
+    public ValidationResult add(ValidationResult validationResult) {
         return add(validationResult.infos);
     }
 
@@ -39,8 +37,7 @@ public class ValidationResult {
      * @param more  A list of information about the validation process
      * @return An instance of this {@link ValidationResult}
      */
-    @NotNull
-    public ValidationResult add(@NotNull ValidationInfo first, ValidationInfo... more) {
+    public ValidationResult add(ValidationInfo first, ValidationInfo... more) {
         add(first);
         for (ValidationInfo info : more) {
             this.add(info);
@@ -67,7 +64,6 @@ public class ValidationResult {
      * @param validationInfo Single information about the validation process
      * @return An instance of this {@link ValidationResult}
      */
-    @NotNull
     public ValidationResult add(ValidationInfo validationInfo) {
         if (validationInfo != null) {
             this.infos.add(validationInfo);
@@ -101,7 +97,6 @@ public class ValidationResult {
      * @return A combined message from all {@link ValidationInfo}s. The messages are
      * separated by the system default line separator
      */
-    @NotNull
     public String getMessage() {
         return getMessage(LINE_SEPARATOR);
     }
@@ -111,7 +106,6 @@ public class ValidationResult {
      * @return A combined message from all {@link ValidationInfo}s. The messages
      * are separated by the given delimiter
      */
-    @NotNull
     public String getMessage(String delimiter) {
         return infos.stream()
                 .map(ValidationInfo::getMessage)

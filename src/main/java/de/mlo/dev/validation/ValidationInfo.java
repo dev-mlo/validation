@@ -43,7 +43,7 @@ public class ValidationInfo {
 
     /**
      * Creates a new {@link ValidationInfo} which indicates that the validation
-     * process was successful --> {@link #isValid()} returns <code>true</code>.<br>
+     * process was successful: {@link #isValid()} returns <code>true</code>.<br>
      * The message will be <code>null</code> in this case. If you would like to add
      * a message, you can use {@link #valid(String)} und this is usually not
      * necessary.
@@ -57,7 +57,7 @@ public class ValidationInfo {
 
     /**
      * Creates a new {@link ValidationInfo} which indicates that the validation
-     * process was successful --> {@link #isValid()} returns <code>true</code>.
+     * process was successful: {@link #isValid()} returns <code>true</code>.
      * You also can add a message but this is usually not necessary if a
      * validation was successful.
      *
@@ -71,7 +71,7 @@ public class ValidationInfo {
 
     /**
      * Creates a new {@link ValidationInfo} which indicates that the validation
-     * process was successful --> {@link #isValid()} returns <code>true</code>.
+     * process was successful: {@link #isValid()} returns <code>true</code>.
      * You also can add a message but this is usually not necessary if a
      * validation was successful.
      *
@@ -85,7 +85,7 @@ public class ValidationInfo {
 
     /**
      * Creates a new {@link ValidationInfo} which indicates the the validation
-     * process was <b>successful</b> --> {@link #isValid()} returns
+     * process was <b>successful</b>: {@link #isValid()} returns
      * <code>false</code>.<br>
      * In this case you should give a detailed messages what went wrong. It
      * is not mandatory (you can pass <code>null</code>) but it is recommended.
@@ -100,7 +100,7 @@ public class ValidationInfo {
 
     /**
      * Creates a new {@link ValidationInfo} which indicates the the validation
-     * process was <b>successful</b> --> {@link #isValid()} returns
+     * process was <b>successful</b>: {@link #isValid()} returns
      * <code>false</code>.<br>
      * In this case you should give a detailed messages what went wrong. It
      * is not mandatory (you can pass <code>null</code>) but it is recommended.
