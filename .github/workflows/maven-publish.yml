@@ -6,6 +6,7 @@ name: Maven Package
 on:
   release:
     types: [created]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -21,6 +22,8 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '11'
+        distribution: 'temurin'
+        cache: maven
 
     - name: Release Maven package
       uses: samuelmeuli/action-maven-publish@v1
