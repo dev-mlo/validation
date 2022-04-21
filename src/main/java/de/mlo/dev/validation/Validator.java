@@ -1,10 +1,14 @@
 package de.mlo.dev.validation;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * The {@link Validator} helps to group, chain and execute {@link ValidationInstruction}s.
+ * The {@link Validator} helps to group, chain and execute {@link ValidationStatement}s.
  * <hr>
  * Example:
  * <pre>{@code
@@ -31,70 +35,175 @@ import java.util.List;
  *     return ValidationInfo.valid();
  * }
  * }</pre>
+ * <hr>
+ * Logging: Depending on the {@link ValidationRunner} you choose you will get
+ * detailed information about the validation process if you set the log level
+ * for this package to debug. The used logging framework ist
+ * <code>org.apache.logging.log4j.Logger</code>
  *
  * @author mlo
  */
-public class Validator {
-    private final List<ValidationInstruction> instructions = new ArrayList<>();
+public class Validator implements ValidationSummarizer {
+    /**
+     * The list contains {@link ValidationSummarizer} which has to be executed
+     * from a {@link ValidationRunner}
+     */
+    private final List<ValidationSummarizer> aggregators = new ArrayList<>();
 
     /**
-     * Adds a new {@link ValidationInstruction} to the list of existent instructions.
-     * The added instruction will be appended at the end of the list. The order of
-     * the instructions is maintained.<br>
-     * Execute the added instructions which {@link #validateAll()} or
-     * {@link #validateStopOnFirstFail()}.
+     * The applied {@link ValidationRunner} defines how the list of added
+     * statements are executed.
+     */
+    private ValidationRunner validationRunner = ValidationRunners.VALIDATE_ALL;
+
+    /**
+     * Adds a new {@link ValidationStatement} to the list of existent statements.
+     * The added statement will be appended at the end of the list. The order of
+     * the statements is maintained.<br>
+     * Execute the added statements which {@link #validate()}
+     * <hr>
+     * Example:
+     * <pre>{@code
+     * public ValidationResult validate(Person person){
+     *     return new Validator()
+     *      .add(() -> validateName(person.getName())
+     *      .add(() -> validateAge(person.getAge())
+     *      .add(() -> validateAddress(person.getAddress())
+     *      .validate();
+     * }
+     * }</pre>
+     * <hr>
+     * For more complex stuff like grouping and nesting you can use the other
+     * {@link #add(ValidationSummarizer) add} function which accepts whole
+     * {@link Validator valdiators} and {@link ValidationResult results}.
      *
-     * @param instruction A new instruction to add to the end of the list of instructions.
-     *                    Null values are ignored
+     * @param statement A new statement to add to the end of the list of statements.
+     *                  Null values are ignored
      * @return An instance of this {@link Validator} so you can chain 'add' calls
      */
-    public Validator add(ValidationInstruction instruction) {
-        if (instruction != null) {
-            this.instructions.add(instruction);
+    @NotNull
+    public Validator add(@Nullable ValidationStatement statement) {
+        return add((ValidationSummarizer) statement);
+    }
+
+    /**
+     * Adds a {@link ValidationSummarizer}. A {@link ValidationSummarizer summarizer} can
+     * execute multiple parts of the validation process and can aggregate the result of
+     * these.<br>
+     * This function allows you to nest different {@link Validator validators} with their own
+     * runner.
+     * <hr>
+     * Example: Check that the given person is not null and if this is true, the persons fields
+     * will be validated all
+     * <pre>{@code
+     * public ValidationResult validatePerson(Person person){
+     *     return new Validator()
+     *      .add(new Validator().add(() -> validatePersonNotNull(person))
+     *      .add(new Validator()
+     *          .add(() -> validateName(person.getName())
+     *          .add(() -> validateAge(person.getAge()))
+     *      .validateStopOnFirstFail()
+     * }
+     * }</pre>
+     *
+     * @param validationSummarizer A {@link ValidationSummarizer} which can be a {@link Validator}
+     *                             or {@link ValidationResult} for example. If the parameter is null
+     *                             it will be ignored.
+     * @return The instance of this validator
+     */
+    @NotNull
+    public Validator add(@Nullable ValidationSummarizer validationSummarizer) {
+        if (validationSummarizer != null) {
+            aggregators.add(validationSummarizer);
         }
         return this;
     }
 
     /**
-     * Executes all added {@link ValidationInstruction}s in the order they have been
-     * added. If a single instruction fails, the {@link ValidationResult#isValid()}
-     * function will return <code>false</code>. Only if all instruction passes the test
-     * the result will be valid ({@link ValidationResult#isValid()} will be
-     * <code>true</code>).<br>
-     * The validation result also contains the result of every single instructions
-     * and can aggregate all failure messages: {@link ValidationResult#getMessage()}.
+     * This will start the validation process. The execution process depends on the used
+     * runner but usually the added {@link ValidationStatement statements} will be executed
+     * in the order they have been added.
+     * <hr>
+     * Runners:
+     * <ul>
+     *     <li>The default runner executes all added statements</li>
+     *     <li>Use {@link #setValidateStopOnFirstFail()} to apply a runner which stops
+     *     if one statement fails</li>
+     *     <li>Use {@link #setValidationRunner(ValidationRunner)} to apply a custom runner</li>
+     * </ul>
      *
-     * @return An aggregated {@link ValidationResult}
+     * @return The aggregated result of all executed statements
      */
-    public ValidationResult validateAll() {
-        ValidationResult result = new ValidationResult();
-        for (ValidationInstruction instruction : instructions) {
-            ValidationInfo info = instruction.validate();
-            result.add(info);
-        }
-        return result;
+    @NotNull
+    @Override
+    public ValidationResult validate() {
+        return validationRunner.validate(aggregators);
     }
 
     /**
-     * Executes the added {@link ValidationInstruction}s in the order they have been
-     * added until the first {@link ValidationInstruction} fail. If a single instruction
+     * Shortcut for
+     * <pre>{@code
+     * validator.setValidateStopOnFirstFail().validate();
+     * }</pre>
+     * Executes the added {@link ValidationStatement}s in the order they have been
+     * added until the first {@link ValidationStatement} fail. If a single statement
      * fails, the {@link ValidationResult#isValid()} function will return <code>false</code>.
-     * Only if all instruction passes the test the result will be valid
+     * Only if all statement passes the test the result will be valid
      * ({@link ValidationResult#isValid()} will be <code>true</code>).<br>
-     * The validation result also contains the result of every single instructions
+     * The validation result also contains the result of every single statements
+     * and can aggregate all failure messages: {@link ValidationResult#getMessage()}.
+     *
+     * @return The result of the validation process. The result will contain zero
+     * or only one information which indicates that the validation failed.
+     */
+    @NotNull
+    public ValidationResult validateStopOnFirstFail() {
+        return setValidateStopOnFirstFail().validate();
+    }
+
+    /**
+     * Executes all added {@link ValidationStatement}s in the order they have been
+     * added. If a single statement fails, the {@link ValidationResult#isValid()}
+     * function will return <code>false</code>. Only if all statement passes the test
+     * the result will be valid ({@link ValidationResult#isValid()} will be
+     * <code>true</code>).<br>
+     * The validation result also contains the result of every single statements
+     * and can aggregate all failure messages: {@link ValidationResult#getMessage()}.
+     *
+     * @return The instance of this validator
+     */
+    @NotNull
+    public Validator setValidateAll() {
+        return setValidationRunner(ValidationRunners.VALIDATE_ALL);
+    }
+
+    /**
+     * Executes the added {@link ValidationStatement}s in the order they have been
+     * added until the first {@link ValidationStatement} fail. If a single statement
+     * fails, the {@link ValidationResult#isValid()} function will return <code>false</code>.
+     * Only if all statement passes the test the result will be valid
+     * ({@link ValidationResult#isValid()} will be <code>true</code>).<br>
+     * The validation result also contains the result of every single statements
      * and can aggregate all failure messages: {@link ValidationResult#getMessage()}.
      *
      * @return An aggregated {@link ValidationResult}
      */
-    public ValidationResult validateStopOnFirstFail() {
-        ValidationResult result = new ValidationResult();
-        for (ValidationInstruction instruction : instructions) {
-            ValidationInfo info = instruction.validate();
-            result.add(info);
-            if (result.isInvalid()) {
-                return result;
-            }
-        }
-        return result;
+    @NotNull
+    public Validator setValidateStopOnFirstFail() {
+        return setValidationRunner(ValidationRunners.VALIDATE_STOP_ON_FIRST_FAIL);
+    }
+
+    /**
+     * Sets a custom {@link ValidationRunner}. A runner has to execute
+     * {@link ValidationSummarizer statements} and has to aggregate the results of
+     * them.
+     *
+     * @param validationRunner A custom validation runner
+     * @return The instance of this validator
+     */
+    @NotNull
+    public Validator setValidationRunner(@NotNull ValidationRunner validationRunner) {
+        this.validationRunner = Objects.requireNonNull(validationRunner);
+        return this;
     }
 }

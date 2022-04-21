@@ -1,14 +1,50 @@
 # Validation
 
-The validation framework helps to group, chain and execute validation instructions
+[![Maven Central](https://img.shields.io/maven-central/v/de.mlo-dev/validation.svg)](http://search.maven.org/#search|ga|1|g%3Ade.mlo-dev)
+
+The validation framework supports you to organize the validation process of your data. You can add, group, chain and
+execute multiple validation statements and aggregate the result
+
+## Getting started
+
+For Maven
+
+```xml
+<dependency>
+    <groupId>de.mlo-dev</groupId>
+    <artifactId>validation</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+For Gradle
+
+```gradle
+implementation group: 'de.mlo-dev', name: 'validation', version: '0.0.2'
+```
+
+If you are using Java modules:
+
+```
+requires de.mlo.dev.validation
+```
+
+## Usage
+
+### Basic
+
+It is recommended that you separate validation statements into functions. This makes the code clearer and makes it more
+testable. To execute the statements use the ```Validator```. The
+```Validator``` will execute the added statement and aggregates the result. Check the returned
+```ValidationResult``` if process was successful or not.
 
 ```java
-public class MyValidator{
+public class PersonValidator{
     public ValidationResult validate(){
         return new Validator()
              .add(this::validateName)
              .add(this::validateAge)
-             .validateAll();
+             .validate();
     }
     
     ValidationInfo validateName(){
@@ -25,6 +61,77 @@ public class MyValidator{
             return ValdationInfo.invalid("Age must be positive value");
         }
         return ValidationInfo.valid();
+    }
+}
+```
+
+***
+
+### Groups
+
+Group multiple validation processes to one:
+
+```java
+public class Groups {
+    
+    public ValidationResult validateContact(){
+        return new Validator()
+                .add(this::validatePerson)
+                .add(this::validateAddress)
+                .validate();
+    }
+    
+    ValidationResult validatePerson() {
+        return new Validator().add(this::validateName).add(this::validateAge).validate();
+    }
+    
+    ValidationResult validateAddress(){
+        return new Validator().add(this::validateStreet).add(this::validateZipAndTown).validate();
+    }
+}
+```
+
+***
+
+### Value dependencies
+
+Validate data that depends on each other using ```setValidateStopOnFirstFail```.
+
+```java
+public class DependingValueValidation {
+    public ValidationResult validateContact(Person person) {
+        return new Validator()
+                .add(() -> validateNull(person))
+                .add(() -> validateName(person.getName())) // Won't be executed if 'person' was null
+                .add(() -> validateAddress(person.getAddress())) // Won't be executed if 'person' was null or 'name' was empty
+                .setValidateStopOnFirstFail()
+                .validate();
+    }
+}
+```
+
+***
+
+## Customization
+
+The validator comes with two modes: validate all or stop on first fail. You can add your own execution logic by setting
+your own ```ValidationRunner``` using
+```Validator.setValidationRunner(...)```.
+
+```java
+class CustomRunnerValidation {
+    public ValidationResult validate() {
+        return new Validator()
+                .setValidationRunner(this::execute)
+                .validate();
+    }
+
+    /** This runner fails if there is no instruction to execute */
+    ValidationResult execute(List<ValidationInstruction> instructionList) {
+        if (instructionList.isEmpty()) {
+            return ValidationResult.invalid("No instructions found");
+        }
+        return ValidationRunners.VALIDATE_ALL.validate(instructionList);
     }
 }
 ```

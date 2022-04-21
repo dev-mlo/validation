@@ -3,9 +3,9 @@ package de.mlo.dev.validation;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author mlo
@@ -17,9 +17,23 @@ class ValidationResultTest {
         ValidationResult result = new ValidationResult();
         assertTrue(result.getInfos().isEmpty());
         assertTrue(result.isValid());
+        assertFalse(result.isInvalid());
         assertTrue(result.getMessage().isBlank());
         assertTrue(result.getMessage("\n").isBlank());
         assertTrue(result.getMessages().isEmpty());
+    }
+
+    @Test
+    void testCreateInvalid() {
+        ValidationResult result = ValidationResult.invalid("Fail 1");
+        assertTrue(result.isInvalid());
+        assertEquals(1, result.getInfos().size());
+        assertEquals("Fail 1", result.getMessage());
+
+        result.add(ValidationInfo.valid());
+        assertTrue(result.isInvalid());
+        assertEquals(2, result.getInfos().size());
+        assertEquals("Fail 1", result.getMessage());
     }
 
     @Test
@@ -102,5 +116,17 @@ class ValidationResultTest {
         assertEquals(3, aggregated.getInfos().size());
         assertEquals(1, aggregated.getMessages().size());
         assertEquals("Fail", aggregated.getMessage());
+    }
+
+    @Test
+    void testIterable() {
+        ValidationResult result = new ValidationResult()
+                .add(ValidationInfo.valid("Success"))
+                .add(ValidationInfo.invalid("Fail"));
+        Iterator<ValidationInfo> iterator = result.iterator();
+        assertEquals("Success", iterator.next().getMessage());
+        assertEquals("Fail", iterator.next().getMessage());
+
+        assertFalse(new ValidationResult().iterator().hasNext());
     }
 }

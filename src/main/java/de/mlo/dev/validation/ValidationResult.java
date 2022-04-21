@@ -1,22 +1,38 @@
 package de.mlo.dev.validation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author mlo
  */
-public class ValidationResult {
+@ToString
+@EqualsAndHashCode
+public class ValidationResult implements Iterable<ValidationInfo> {
 
     /**
      * The system line separator
      */
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
-    private final List<ValidationInfo> infos = new ArrayList<>();
     private boolean valid = true;
+    private final List<ValidationInfo> infos = new ArrayList<>();
+
+    /**
+     * Convenient function: Creates a {@link ValidationResult} with on {@link ValidationInfo}
+     * which is <i>invalid</i> and contains the given message.<br>
+     * <b>Caution</b>: If a process combines {@link ValidationResult results} the end result
+     * will be invalid.
+     *
+     * @param message A description why the result is invalid
+     * @return A new instance of a {@link ValidationResult}
+     */
+    public static ValidationResult invalid(String message) {
+        return new ValidationResult()
+                .add(ValidationInfo.invalid(message));
+    }
 
     /**
      * Merges the given {@link ValidationResult} into this result. The given
@@ -40,7 +56,7 @@ public class ValidationResult {
     public ValidationResult add(ValidationInfo first, ValidationInfo... more) {
         add(first);
         for (ValidationInfo info : more) {
-            this.add(info);
+            add(info);
         }
         return this;
     }
@@ -121,5 +137,10 @@ public class ValidationResult {
                 .map(ValidationInfo::getMessage)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Iterator<ValidationInfo> iterator() {
+        return infos.iterator();
     }
 }

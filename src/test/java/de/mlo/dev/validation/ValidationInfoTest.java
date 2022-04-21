@@ -2,8 +2,6 @@ package de.mlo.dev.validation;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.function.Supplier;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -13,22 +11,12 @@ class ValidationInfoTest {
 
     @Test
     void testConstructors() {
-        ValidationInfo info = new ValidationInfo(true, (String) null);
+        ValidationInfo info = new ValidationInfo(true, null);
         assertTrue(info.isValid());
         assertFalse(info.isInvalid());
         assertNull(info.getMessage());
 
         info = new ValidationInfo(true, "Successful");
-        assertTrue(info.isValid());
-        assertFalse(info.isInvalid());
-        assertEquals("Successful", info.getMessage());
-
-        info = new ValidationInfo(true, (Supplier<String>) null);
-        assertTrue(info.isValid());
-        assertFalse(info.isInvalid());
-        assertNull(info.getMessage());
-
-        info = new ValidationInfo(true, () -> "Successful");
         assertTrue(info.isValid());
         assertFalse(info.isInvalid());
         assertEquals("Successful", info.getMessage());
@@ -43,10 +31,6 @@ class ValidationInfoTest {
         valid = ValidationInfo.valid("Successful");
         assertTrue(valid.isValid());
         assertEquals("Successful", valid.getMessage());
-
-        valid = ValidationInfo.valid(() -> "Successful");
-        assertTrue(valid.isValid());
-        assertEquals("Successful", valid.getMessage());
     }
 
     @Test
@@ -55,16 +39,25 @@ class ValidationInfoTest {
         assertTrue(invalid.isInvalid());
         assertEquals("Fail", invalid.getMessage());
 
-        invalid = ValidationInfo.invalid((String) null);
+        invalid = ValidationInfo.invalid(null);
         assertTrue(invalid.isInvalid());
         assertNull(invalid.getMessage());
+    }
 
-        invalid = ValidationInfo.invalid(() -> "Fail");
+    @Test
+    void testInvalidWithFormatter() {
+        ValidationInfo invalid = ValidationInfo.invalid("%s", "Format Test");
         assertTrue(invalid.isInvalid());
-        assertEquals("Fail", invalid.getMessage());
+        assertEquals("Format Test", invalid.getMessage());
+    }
 
-        invalid = ValidationInfo.invalid((Supplier<String>) null);
-        assertTrue(invalid.isInvalid());
-        assertNull(invalid.getMessage());
+    @Test
+    void testCompareTo() {
+        ValidationInfo valid = ValidationInfo.valid();
+        ValidationInfo invalid = ValidationInfo.invalid("Fail");
+        assertEquals(0, valid.compareTo(ValidationInfo.valid()));
+        assertEquals(0, invalid.compareTo(ValidationInfo.invalid("Fail")));
+        assertEquals(1, valid.compareTo(invalid));
+        assertEquals(-1, invalid.compareTo(valid));
     }
 }
