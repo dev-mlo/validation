@@ -57,7 +57,7 @@ class ValidationInfoTest {
         ValidationInfo invalid = ValidationInfo.invalid("Fail");
         assertEquals(0, valid.compareTo(ValidationInfo.valid()));
         assertEquals(0, invalid.compareTo(ValidationInfo.invalid("Fail")));
-        assertEquals(1, valid.compareTo(invalid));
-        assertEquals(-1, invalid.compareTo(valid));
+        assertEquals(-1, valid.compareTo(invalid));
+        assertEquals(1, invalid.compareTo(valid));
     }
 }

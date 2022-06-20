@@ -13,7 +13,7 @@ For Maven
 <dependency>
     <groupId>de.mlo-dev</groupId>
     <artifactId>validation</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -132,6 +132,45 @@ class CustomRunnerValidation {
             return ValidationResult.invalid("No instructions found");
         }
         return ValidationRunners.VALIDATE_ALL.validate(instructionList);
+    }
+}
+```
+
+***
+
+## Type specific validator
+
+Use the ```ValueValidator``` to validate a specific type. This allows you to build reusable Validators.
+
+```java
+import de.mlo.dev.validation.ValidationResult;
+
+public class PersonValidator {
+
+    public static ValueValidator<Person> PERSON_VALIDATOR = createValidator();
+
+    static ValidationResult validate(Person person) {
+        return PERSON_VALIDATOR.validate(person);
+    }
+
+    static ValueValidator<Person> createValidator() {
+        return ValueValidator.create(Person.class)
+                .add(PersonValidator::validateName)
+                .add(PersonValidator::validateAge);
+    }
+
+    static ValidationInfo validateName(Person person) {
+        if (person.getName().isBlank()) {
+            return ValidationInfo.invalid("Name is empty");
+        }
+        return ValidationInfo.valid();
+    }
+
+    static ValidationInfo validateAge(Person person) {
+        if (person.getAge() <= 0) {
+            return ValdationInfo.invalid("Age must be positive value");
+        }
+        return ValidationInfo.valid(person);
     }
 }
 ```

@@ -5,6 +5,7 @@ import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.MessageFormat;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -98,7 +99,13 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
      */
     @NotNull
     public static ValidationInfo invalid(@NotNull String messageFormat, Object... args) {
-        return new ValidationInfo(false, String.format(messageFormat, args));
+        return new ValidationInfo(false, format(messageFormat, args));
+    }
+
+    private static String format(String format, Object... args) {
+        String msg = String.format(format, args);
+        msg = MessageFormat.format(msg, args);
+        return msg;
     }
 
     /**
@@ -131,8 +138,12 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
 
     @Override
     public int compareTo(@NotNull ValidationInfo o) {
-        return Comparator.comparing(ValidationInfo::isValid)
+        return Comparator.comparing(this::compareValid)
                 .thenComparing(info -> Objects.requireNonNullElse(info.getMessage(), ""))
                 .compare(this, o);
+    }
+
+    private int compareValid(@NotNull ValidationInfo o) {
+        return Boolean.compare(isValid(), o.isValid());
     }
 }

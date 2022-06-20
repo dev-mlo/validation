@@ -17,8 +17,8 @@ public class ValidationResult implements Iterable<ValidationInfo> {
      * The system line separator
      */
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
-    private boolean valid = true;
     private final List<ValidationInfo> infos = new ArrayList<>();
+    private boolean valid = true;
 
     /**
      * Convenient function: Creates a {@link ValidationResult} with on {@link ValidationInfo}

@@ -30,7 +30,7 @@ import java.util.Objects;
  * ValidationInfo validateAge(){
  *     int age = unbindAge();
  *     if(age <= 0){
- *         return ValdationInfo.invalid("Age must be positive value")
+ *         return ValidationInfo.invalid("Age must be positive value")
  *     }
  *     return ValidationInfo.valid();
  * }
@@ -120,6 +120,19 @@ public class Validator implements ValidationSummarizer {
     }
 
     /**
+     * Starts a new {@link ValidatorGroup validation group} which can have multiple
+     * {@link ValidationStatement statements} and can aggregate the result of these. Use
+     * the group like this {@link Validator}. When you are done with the group you can
+     * finish it with {@link ValidatorGroup#build()}.
+     *
+     * @return A new instance of {@link ValidatorGroup}. Return to this validator with
+     * {@link ValidatorGroup#build()}
+     */
+    public ValidatorGroup groupBuilder() {
+        return new ValidatorGroup(this);
+    }
+
+    /**
      * This will start the validation process. The execution process depends on the used
      * runner but usually the added {@link ValidationStatement statements} will be executed
      * in the order they have been added.
@@ -204,6 +217,10 @@ public class Validator implements ValidationSummarizer {
     @NotNull
     public Validator setValidationRunner(@NotNull ValidationRunner validationRunner) {
         this.validationRunner = Objects.requireNonNull(validationRunner);
+        return this;
+    }
+
+    Validator build() {
         return this;
     }
 }
