@@ -1,4 +1,4 @@
-package de.mlo.dev.validation;
+package de.mlo.dev.validation.basic;
 
 import java.util.Objects;
 

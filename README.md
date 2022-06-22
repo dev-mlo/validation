@@ -143,7 +143,7 @@ class CustomRunnerValidation {
 Use the ```ValueValidator``` to validate a specific type. This allows you to build reusable Validators.
 
 ```java
-import de.mlo.dev.validation.ValidationResult;
+import de.mlo.dev.validation.basic.ValidationResult;
 
 public class PersonValidator {
 

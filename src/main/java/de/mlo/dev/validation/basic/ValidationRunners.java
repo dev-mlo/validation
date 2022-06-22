@@ -1,4 +1,4 @@
-package de.mlo.dev.validation;
+package de.mlo.dev.validation.basic;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

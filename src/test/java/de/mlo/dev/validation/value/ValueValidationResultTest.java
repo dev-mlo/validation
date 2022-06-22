@@ -1,6 +1,6 @@
 package de.mlo.dev.validation.value;
 
-import de.mlo.dev.validation.ValidationResult;
+import de.mlo.dev.validation.basic.ValidationResult;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -1,5 +1,6 @@
-package de.mlo.dev.validation;
+package de.mlo.dev.validation.basic;
 
+import de.mlo.dev.validation.ValidationInfo;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,10 +29,10 @@ class ValidatorTest {
                 .validate();
         assertTrue(result.isInvalid());
         assertEquals(4, result.getInfos().size());
-        assertEquals("Fail 1", result.getMessages().get(0));
-        assertEquals("Fail 2", result.getMessages().get(1));
-        assertEquals("Success 1", result.getMessages().get(2));
-        assertEquals("Success 2", result.getMessages().get(3));
+        assertEquals("Fail 1", result.getMessages().get(0).getText());
+        assertEquals("Fail 2", result.getMessages().get(1).getText());
+        assertEquals("Success 1", result.getMessages().get(2).getText());
+        assertEquals("Success 2", result.getMessages().get(3).getText());
     }
 
     @Test
@@ -50,8 +51,8 @@ class ValidatorTest {
                 .validateStopOnFirstFail();
         assertTrue(result.isInvalid());
         assertEquals(2, result.getInfos().size());
-        assertEquals("Fail 1", result.getMessages().get(0));
-        assertEquals("Fail 2", result.getMessages().get(1));
+        assertEquals("Fail 1", result.getMessages().get(0).getText());
+        assertEquals("Fail 2", result.getMessages().get(1).getText());
     }
 
     @Test
@@ -81,10 +82,10 @@ class ValidatorTest {
                 .validateStopOnFirstFail();
         assertTrue(result.isInvalid());
         assertEquals(4, result.getInfos().size());
-        assertEquals("Success 1", result.getMessages().get(0));
-        assertEquals("Success 2", result.getMessages().get(1));
-        assertEquals("Sub fail 1", result.getMessages().get(2));
-        assertEquals("Sub fail 2", result.getMessages().get(3));
+        assertEquals("Success 1", result.getMessages().get(0).getText());
+        assertEquals("Success 2", result.getMessages().get(1).getText());
+        assertEquals("Sub fail 1", result.getMessages().get(2).getText());
+        assertEquals("Sub fail 2", result.getMessages().get(3).getText());
 
 
         // validateAll
@@ -95,12 +96,12 @@ class ValidatorTest {
                 .validate();
         assertTrue(result.isInvalid());
         assertEquals(6, result.getInfos().size());
-        assertEquals("Success 1", result.getMessages().get(0));
-        assertEquals("Success 2", result.getMessages().get(1));
-        assertEquals("Sub fail 1", result.getMessages().get(2));
-        assertEquals("Sub fail 2", result.getMessages().get(3));
-        assertEquals("Fail 1", result.getMessages().get(4));
-        assertEquals("Fail 2", result.getMessages().get(5));
+        assertEquals("Success 1", result.getMessages().get(0).getText());
+        assertEquals("Success 2", result.getMessages().get(1).getText());
+        assertEquals("Sub fail 1", result.getMessages().get(2).getText());
+        assertEquals("Sub fail 2", result.getMessages().get(3).getText());
+        assertEquals("Fail 1", result.getMessages().get(4).getText());
+        assertEquals("Fail 2", result.getMessages().get(5).getText());
     }
 
     @Test

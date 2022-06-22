@@ -1,5 +1,6 @@
-package de.mlo.dev.validation;
+package de.mlo.dev.validation.basic;
 
+import de.mlo.dev.validation.ValidationInfo;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

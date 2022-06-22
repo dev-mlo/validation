@@ -1,7 +1,7 @@
 package de.mlo.dev.validation.value;
 
 import de.mlo.dev.validation.ValidationInfo;
-import de.mlo.dev.validation.ValidationResult;
+import de.mlo.dev.validation.basic.ValidationResult;
 import org.jetbrains.annotations.NotNull;
 
 /**

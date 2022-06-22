@@ -1,7 +1,7 @@
 package de.mlo.dev.validation.value;
 
-import de.mlo.dev.validation.ValidationRunner;
-import de.mlo.dev.validation.ValidationSummarizer;
+import de.mlo.dev.validation.basic.ValidationRunner;
+import de.mlo.dev.validation.basic.ValidationSummarizer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

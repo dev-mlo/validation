@@ -1,6 +1,6 @@
 package de.mlo.dev.validation.value;
 
-import de.mlo.dev.validation.ValidationResult;
+import de.mlo.dev.validation.basic.ValidationResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
