@@ -35,10 +35,10 @@ class ValueValidatorTest {
                 .build()
                 .setValidateAll()
                 .validate("Test");
-        assertTrue(result.getMessages().contains("1"));
-        assertTrue(result.getMessages().contains("2"));
-        assertTrue(result.getMessages().contains("3"));
-        assertTrue(result.getMessages().contains("4"));
+        assertTrue(result.getMessagesTextList().contains("1"));
+        assertTrue(result.getMessagesTextList().contains("2"));
+        assertTrue(result.getMessagesTextList().contains("3"));
+        assertTrue(result.getMessagesTextList().contains("4"));
     }
 
     /**
@@ -54,8 +54,8 @@ class ValueValidatorTest {
                 .setValidateStopOnFirstFail()
                 .build();
         ValueValidationResult<String> result = validator.validate("Test");
-        assertTrue(result.getMessages().contains("1"));
-        assertTrue(result.getMessages().contains("2"));
+        assertTrue(result.getMessagesTextList().contains("1"));
+        assertTrue(result.getMessagesTextList().contains("2"));
 
         validator = validator.groupBuilder()
                 .add((s) -> ValidationInfo.valid("4"))
@@ -65,10 +65,10 @@ class ValueValidatorTest {
                 .build();
 
         result = validator.validate("Test");
-        assertTrue(result.getMessages().contains("1"));
-        assertTrue(result.getMessages().contains("2"));
-        assertTrue(result.getMessages().contains("4"));
-        assertTrue(result.getMessages().contains("5"));
+        assertTrue(result.getMessagesTextList().contains("1"));
+        assertTrue(result.getMessagesTextList().contains("2"));
+        assertTrue(result.getMessagesTextList().contains("4"));
+        assertTrue(result.getMessagesTextList().contains("5"));
     }
 
     /**
@@ -88,7 +88,7 @@ class ValueValidatorTest {
                 .setValidateStopOnFirstFail()
                 .build()
                 .validateStopOnFirstFail("Test");
-        assertTrue(result.getMessages().contains("1"));
-        assertTrue(result.getMessages().contains("2"));
+        assertTrue(result.getMessagesTextList().contains("1"));
+        assertTrue(result.getMessagesTextList().contains("2"));
     }
 }
