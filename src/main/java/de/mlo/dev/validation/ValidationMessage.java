@@ -167,14 +167,13 @@ public class ValidationMessage implements Comparable<ValidationMessage> {
      * on the parameters, but the meaning of the message should be the same.
      * </p>
      * <p>
-     * <pre>
      * Example
+     * <pre>
      * Code          = NO_COUNTRY
      * Text-Template = The country ''{0}'' does not exist
      * Text 1        = The country 'Narnia' does not exist
      * Text 2        = The country 'Genovia' does not exist
      * </pre>
-     * </p>
      *
      * @return A technical code which represents the message text
      */
