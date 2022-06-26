@@ -3,4 +3,6 @@ module de.mlo.dev.validation {
     requires lombok;
     requires org.jetbrains.annotations;
     exports de.mlo.dev.validation;
+    exports de.mlo.dev.validation.value;
+    exports de.mlo.dev.validation.basic;
 }

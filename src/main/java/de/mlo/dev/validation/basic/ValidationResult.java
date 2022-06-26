@@ -1,5 +1,7 @@
-package de.mlo.dev.validation;
+package de.mlo.dev.validation.basic;
 
+import de.mlo.dev.validation.ValidationInfo;
+import de.mlo.dev.validation.ValidationMessage;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -17,8 +19,8 @@ public class ValidationResult implements Iterable<ValidationInfo> {
      * The system line separator
      */
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
-    private boolean valid = true;
     private final List<ValidationInfo> infos = new ArrayList<>();
+    private boolean valid = true;
 
     /**
      * Convenient function: Creates a {@link ValidationResult} with on {@link ValidationInfo}
@@ -125,6 +127,7 @@ public class ValidationResult implements Iterable<ValidationInfo> {
     public String getMessage(String delimiter) {
         return infos.stream()
                 .map(ValidationInfo::getMessage)
+                .map(ValidationMessage::getText)
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining(delimiter));
     }
@@ -132,11 +135,29 @@ public class ValidationResult implements Iterable<ValidationInfo> {
     /**
      * @return A list of all messages from the {@link ValidationInfo}s.
      */
-    public List<String> getMessages() {
+    public List<ValidationMessage> getMessages() {
         return infos.stream()
                 .map(ValidationInfo::getMessage)
+                .filter(ValidationMessage::isNotEmpty)
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getMessagesTextList() {
+        return infos.stream()
+                .map(ValidationInfo::getMessageText)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * @return A set of all technical codes
+     */
+    public Set<String> getCodes() {
+        return infos.stream()
+                .map(ValidationInfo::getMessage)
+                .map(ValidationMessage::getCode)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     @Override

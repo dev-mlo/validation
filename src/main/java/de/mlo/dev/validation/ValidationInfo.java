@@ -1,5 +1,7 @@
 package de.mlo.dev.validation;
 
+import de.mlo.dev.validation.basic.ValidationResult;
+import de.mlo.dev.validation.basic.Validator;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -19,9 +21,9 @@ import java.util.Objects;
 @EqualsAndHashCode
 public class ValidationInfo implements Comparable<ValidationInfo> {
 
-    private static final ValidationInfo VALID = new ValidationInfo(true, null);
+    private static final ValidationInfo VALID = new ValidationInfo(true, ValidationMessage.empty());
     private final boolean valid;
-    private final String message;
+    private final ValidationMessage message;
 
     /**
      * Creates a new {@link ValidationInfo}. You can also use the {@link #valid()}
@@ -31,9 +33,9 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
      * @param message A detailed message if the validation failed. If the validation
      *                was successful the message usually is not necessary.
      */
-    public ValidationInfo(boolean valid, @Nullable String message) {
+    public ValidationInfo(boolean valid, ValidationMessage message) {
         this.valid = valid;
-        this.message = message;
+        this.message = Objects.requireNonNullElse(message, ValidationMessage.empty());
     }
 
     /**
@@ -54,16 +56,26 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
     /**
      * Creates a new {@link ValidationInfo} which indicates that the validation
      * process was successful: {@link #isValid()} returns <code>true</code>.
-     * You also can add a message but this is usually not necessary if a
+     * You also can add a text but this is usually not necessary if a
      * validation was successful.
      *
-     * @param message A detailed message of the validation process
+     * @param text A detailed text of the validation process
      * @return A new {@link ValidationInfo} which indicates that the validation
      * process was successful
      */
     @NotNull
-    public static ValidationInfo valid(@Nullable String message) {
+    public static ValidationInfo valid(@Nullable String text) {
+        return new ValidationInfo(true, ValidationMessage.justText(text));
+    }
+
+    @NotNull
+    public static ValidationInfo valid(@Nullable ValidationMessage message) {
         return new ValidationInfo(true, message);
+    }
+
+    @NotNull
+    public static Builder buildValid() {
+        return Builder.valid();
     }
 
     /**
@@ -73,12 +85,25 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
      * In this case you should give a detailed messages what went wrong. It
      * is not mandatory (you can pass <code>null</code>) but it is recommended.
      *
-     * @param message A detailed message, what went wrong
+     * @param text A detailed text, what went wrong
      * @return A new {@link ValidationInfo} which indicates that the validation
      * process was <b>not</b> successful
      */
     @NotNull
-    public static ValidationInfo invalid(@Nullable String message) {
+    public static ValidationInfo invalid(@Nullable String text) {
+        return new ValidationInfo(false, ValidationMessage.justText(text));
+    }
+
+    public static ValidationInfo invalidCode(@Nullable String code) {
+        return new ValidationInfo(false, ValidationMessage.justCode(code));
+    }
+
+    public static ValidationInfo invalidCode(@Nullable String code, String message) {
+        return new ValidationInfo(false, ValidationMessage.of(code, message));
+    }
+
+    @NotNull
+    public static ValidationInfo invalid(@Nullable ValidationMessage message) {
         return new ValidationInfo(false, message);
     }
 
@@ -98,7 +123,15 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
      */
     @NotNull
     public static ValidationInfo invalid(@NotNull String messageFormat, Object... args) {
-        return new ValidationInfo(false, String.format(messageFormat, args));
+        return new ValidationInfo(false, ValidationMessage.formattedText(messageFormat, args));
+    }
+
+    public static Builder buildInvalid() {
+        return Builder.invalid();
+    }
+
+    public static Builder build(boolean valid) {
+        return new Builder(valid);
     }
 
     /**
@@ -124,15 +157,68 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
      * filled, if the validation failed. If the validation was successful the
      * message can be null.
      */
-    @Nullable
-    public String getMessage() {
+    @NotNull
+    public ValidationMessage getMessage() {
         return message;
+    }
+
+    @Nullable
+    public String getMessageText() {
+        return message.getText();
+    }
+
+    @Nullable
+    public String getMessageCode() {
+        return message.getCode();
     }
 
     @Override
     public int compareTo(@NotNull ValidationInfo o) {
-        return Comparator.comparing(ValidationInfo::isValid)
-                .thenComparing(info -> Objects.requireNonNullElse(info.getMessage(), ""))
+        return Comparator.comparing(this::compareValid)
+                .thenComparing(ValidationInfo::getMessage)
                 .compare(this, o);
+    }
+
+    private int compareValid(@NotNull ValidationInfo o) {
+        return Boolean.compare(isValid(), o.isValid());
+    }
+
+    public static class Builder {
+
+        private final boolean valid;
+        private String code;
+        private String message;
+        private Object[] parameter;
+
+        private Builder(boolean valid) {
+            this.valid = valid;
+        }
+
+        private static Builder valid() {
+            return new Builder(true);
+        }
+
+        private static Builder invalid() {
+            return new Builder(false);
+        }
+
+        public Builder code(String code) {
+            this.code = code;
+            return this;
+        }
+
+        public Builder message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public Builder parameter(Object... parameter) {
+            this.parameter = parameter;
+            return this;
+        }
+
+        public ValidationInfo build() {
+            return new ValidationInfo(valid, new ValidationMessage(code, message, parameter));
+        }
     }
 }
