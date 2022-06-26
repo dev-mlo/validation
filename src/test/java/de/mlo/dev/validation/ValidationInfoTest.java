@@ -76,4 +76,31 @@ class ValidationInfoTest {
         assertEquals(-1, valid.compareTo(invalid));
         assertEquals(1, invalid.compareTo(valid));
     }
+
+    @Test
+    void testBuilder() {
+        ValidationInfo info = ValidationInfo.buildValid().message("Msg").build();
+        assertTrue(info.isValid());
+        assertEquals("Msg", info.getMessageText());
+        assertNull(info.getMessageCode());
+        assertEquals(0, info.getMessage().getParameters().length);
+
+        info = ValidationInfo.buildValid().code("ER-001").build();
+        assertTrue(info.isValid());
+        assertNull(info.getMessageText());
+        assertEquals("ER-001", info.getMessageCode());
+        assertEquals(0, info.getMessage().getParameters().length);
+
+        info = ValidationInfo.buildInvalid().code("ER-001").message("Msg").build();
+        assertTrue(info.isInvalid());
+        assertEquals("Msg", info.getMessageText());
+        assertEquals("ER-001", info.getMessageCode());
+        assertEquals(0, info.getMessage().getParameters().length);
+
+        info = ValidationInfo.build(false).code("ER-001").message("Msg {0}").parameter(1).build();
+        assertTrue(info.isInvalid());
+        assertEquals("Msg 1", info.getMessageText());
+        assertEquals("ER-001", info.getMessageCode());
+        assertEquals(1, info.getMessage().getParameters().length);
+    }
 }

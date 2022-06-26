@@ -2,13 +2,21 @@ package de.mlo.dev.validation;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author mlo
  */
 class ValidationMessageTest {
+
+    @Test
+    void testConstructor() {
+        ValidationMessage msg = new ValidationMessage(null, null, 1, 2, 3);
+        assertNull(msg.getText());
+        assertNull(msg.getUnformattedText());
+        assertNull(msg.getCode());
+        assertEquals(3, msg.getParameters().length);
+    }
 
     @Test
     void of() {
@@ -102,5 +110,17 @@ class ValidationMessageTest {
 
     @Test
     void compareTo() {
+    }
+
+    @Test
+    void testIsEmpty() {
+        ValidationMessage msg = ValidationMessage.empty();
+        assertTrue(msg.isEmpty());
+
+        msg = ValidationMessage.justCode("ERR-001");
+        assertFalse(msg.isEmpty());
+
+        msg = ValidationMessage.justText("Fail");
+        assertFalse(msg.isEmpty());
     }
 }

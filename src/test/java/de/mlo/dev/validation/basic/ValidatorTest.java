@@ -3,6 +3,8 @@ package de.mlo.dev.validation.basic;
 import de.mlo.dev.validation.ValidationInfo;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -151,5 +153,96 @@ class ValidatorTest {
                 .add(ValidationInfo::valid)
                 .validate();
         assertTrue(result.isValid());
+    }
+
+    @Test
+    void testGroup() {
+        // One statement and one group with one statement
+        ValidationResult result = new Validator()
+                .add(ValidationInfo::valid)
+                .groupBuilder()
+                .add(ValidationInfo::valid)
+                .build()
+                .validate();
+        assertTrue(result.isValid());
+        assertEquals(2, result.getInfos().size());
+        assertEquals(0, result.getMessages().size());
+        assertEquals(0, result.getMessagesTextList().size());
+
+
+        // Group fail should prevent execution of further validation statements
+        result = new Validator()
+                .groupBuilder()
+                .add(() -> ValidationInfo.invalid("Fail"))
+                .build()
+                .add(ValidationInfo::valid)
+                .validateStopOnFirstFail();
+        assertEquals(1, result.getInfos().size());
+        assertEquals(1, result.getMessages().size());
+        assertEquals(1, result.getMessagesTextList().size());
+        assertEquals("Fail", result.getMessage());
+
+
+        // The groups themselves will stop the execution when on statement failed but the
+        // whole validator will execute all groups
+        result = new Validator()
+                .groupBuilder()
+                .add(() -> ValidationInfo.valid("Valid Group 1.1"))
+                .add(() -> ValidationInfo.invalid("Fail Group 1.1"))
+                .add(() -> ValidationInfo.valid("Valid Group 1.2: Wont be execute due to previous fail"))
+                .setValidateStopOnFirstFail()
+                .build()
+                .groupBuilder()
+                .add(() -> ValidationInfo.valid("Valid Group 2.1"))
+                .add(() -> ValidationInfo.invalid("Fail Group 2.1"))
+                .add(() -> ValidationInfo.valid("Valid Group 2.2: Wont be execute due to previous fail"))
+                .setValidateStopOnFirstFail()
+                .build()
+                .validate();
+        assertEquals(4, result.getInfos().size());
+        assertEquals(4, result.getMessages().size());
+        assertEquals(4, result.getMessagesTextList().size());
+        assertTrue(result.getMessagesTextList().containsAll(List.of(
+                "Valid Group 1.1", "Fail Group 1.1", "Valid Group 2.1", "Fail Group 2.1")));
+    }
+
+    @Test
+    void testNestedGroups() {
+        ValidationResult result = new Validator()
+                .add(() -> ValidationInfo.valid("Root Validator 1"))
+                .groupBuilder()
+                .add(() -> ValidationInfo.valid("Valid Group 1.1"))
+                .groupBuilder()
+                .add(() -> ValidationInfo.valid("Valid Group 1.1.1"))
+                .add(() -> ValidationInfo.invalid("Fail Group 1.1.1"))
+                .add(() -> ValidationInfo.valid("Valid Group 1.1.2: Wont be executed due to previous fail"))
+                .setValidateStopOnFirstFail()
+                .build()
+                .add(() -> ValidationInfo.invalid("Fail Group 1.1"))
+                .add(() -> ValidationInfo.valid("Valid Group 1.2"))
+                .setValidateAll()
+                .build()
+                .add(() -> ValidationInfo.valid("Root Validator 2"))
+                .validate();
+        assertEquals(7, result.getInfos().size());
+        assertEquals(7, result.getMessages().size());
+        assertEquals(7, result.getMessagesTextList().size());
+        assertTrue(result.getMessagesTextList().containsAll(List.of(
+                "Root Validator 1", "Valid Group 1.1", "Valid Group 1.1.1", "Fail Group 1.1.1",
+                "Fail Group 1.1", "Valid Group 1.2", "Root Validator 2")));
+    }
+
+    @Test
+    void testBuild() {
+        Validator validator = new Validator();
+        assertEquals(validator, validator.build());
+    }
+
+    @Test
+    void testSetValidator() {
+        Validator validator = new Validator();
+        validator.setValidationRunner(validators -> ValidationResult.invalid("Always wrong"));
+        ValidationResult result = validator.validate();
+        assertEquals("Always wrong", result.getMessage());
     }
 }

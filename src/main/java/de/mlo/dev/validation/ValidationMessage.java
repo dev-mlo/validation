@@ -14,6 +14,7 @@ import java.util.stream.Stream;
  */
 public class ValidationMessage implements Comparable<ValidationMessage> {
     private static final ValidationMessage EMPTY = new ValidationMessage(null, null);
+    private static final Object[] EMPTY_PARAMETERS = new Object[0];
     private final String text;
     private final Object[] parameters;
     private final String code;
@@ -30,7 +31,7 @@ public class ValidationMessage implements Comparable<ValidationMessage> {
     public ValidationMessage(@Nullable String code, @Nullable String text, @Nullable Object... parameters) {
         this.code = code;
         this.text = text;
-        this.parameters = Objects.requireNonNull(parameters);
+        this.parameters = Objects.requireNonNullElse(parameters, EMPTY_PARAMETERS);
     }
 
     /**

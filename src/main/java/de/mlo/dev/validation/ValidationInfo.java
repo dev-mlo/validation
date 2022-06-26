@@ -73,6 +73,11 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
         return new ValidationInfo(true, message);
     }
 
+    @NotNull
+    public static Builder buildValid() {
+        return Builder.valid();
+    }
+
     /**
      * Creates a new {@link ValidationInfo} which indicates that the validation
      * process was <b>not</b> successful: {@link #isValid()} returns
@@ -87,6 +92,14 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
     @NotNull
     public static ValidationInfo invalid(@Nullable String text) {
         return new ValidationInfo(false, ValidationMessage.justText(text));
+    }
+
+    public static ValidationInfo invalidCode(@Nullable String code) {
+        return new ValidationInfo(false, ValidationMessage.justCode(code));
+    }
+
+    public static ValidationInfo invalidCode(@Nullable String code, String message) {
+        return new ValidationInfo(false, ValidationMessage.of(code, message));
     }
 
     @NotNull
@@ -111,6 +124,14 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
     @NotNull
     public static ValidationInfo invalid(@NotNull String messageFormat, Object... args) {
         return new ValidationInfo(false, ValidationMessage.formattedText(messageFormat, args));
+    }
+
+    public static Builder buildInvalid() {
+        return Builder.invalid();
+    }
+
+    public static Builder build(boolean valid) {
+        return new Builder(valid);
     }
 
     /**
@@ -160,5 +181,44 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
 
     private int compareValid(@NotNull ValidationInfo o) {
         return Boolean.compare(isValid(), o.isValid());
+    }
+
+    public static class Builder {
+
+        private final boolean valid;
+        private String code;
+        private String message;
+        private Object[] parameter;
+
+        private Builder(boolean valid) {
+            this.valid = valid;
+        }
+
+        private static Builder valid() {
+            return new Builder(true);
+        }
+
+        private static Builder invalid() {
+            return new Builder(false);
+        }
+
+        public Builder code(String code) {
+            this.code = code;
+            return this;
+        }
+
+        public Builder message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public Builder parameter(Object... parameter) {
+            this.parameter = parameter;
+            return this;
+        }
+
+        public ValidationInfo build() {
+            return new ValidationInfo(valid, new ValidationMessage(code, message, parameter));
+        }
     }
 }

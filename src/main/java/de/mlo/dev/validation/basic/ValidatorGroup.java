@@ -1,5 +1,7 @@
 package de.mlo.dev.validation.basic;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 /**
@@ -24,8 +26,26 @@ public class ValidatorGroup extends Validator {
     }
 
     @Override
-    Validator build() {
+    public Validator build() {
         parent.add(this);
         return parent;
+    }
+
+    @Override
+    @NotNull
+    public ValidatorGroup setValidateStopOnFirstFail() {
+        return (ValidatorGroup) super.setValidateStopOnFirstFail();
+    }
+
+    @Override
+    @NotNull
+    public ValidatorGroup setValidateAll() {
+        return (ValidatorGroup) super.setValidateAll();
+    }
+
+    @Override
+    @NotNull
+    public ValidatorGroup setValidationRunner(@NotNull ValidationRunner validationRunner) {
+        return (ValidatorGroup) super.setValidationRunner(validationRunner);
     }
 }
