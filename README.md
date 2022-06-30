@@ -13,7 +13,7 @@ For Maven
 <dependency>
     <groupId>de.mlo-dev</groupId>
     <artifactId>validation</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
 </dependency>
 ```
 
