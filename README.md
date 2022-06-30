@@ -10,6 +10,7 @@ execute multiple validation statements and aggregate the result
 For Maven
 
 ```xml
+
 <dependency>
     <groupId>de.mlo-dev</groupId>
     <artifactId>validation</artifactId>
@@ -39,54 +40,28 @@ testable. To execute the statements use the ```Validator```. The
 ```ValidationResult``` if process was successful or not.
 
 ```java
-public class PersonValidator{
-    public ValidationResult validate(){
+public class PersonValidator {
+    public ValidationResult validate() {
         return new Validator()
-             .add(this::validateName)
-             .add(this::validateAge)
-             .validate();
+                .add(this::validateName)
+                .add(this::validateAge)
+                .validate();
     }
-    
-    ValidationInfo validateName(){
+
+    ValidationInfo validateName() {
         String name = unbindName();
-        if(name.isBlank()){
-           return ValidationInfo.invalid("Name is empty");
+        if (name.isBlank()) {
+            return ValidationInfo.invalid("Name is empty");
         }
         return ValidationInfo.valid();
     }
-    
-    ValidationInfo validateAge(){
+
+    ValidationInfo validateAge() {
         int age = unbindAge();
-        if(age <= 0){
+        if (age <= 0) {
             return ValdationInfo.invalid("Age must be positive value");
         }
         return ValidationInfo.valid();
-    }
-}
-```
-
-***
-
-### Groups
-
-Group multiple validation processes to one:
-
-```java
-public class Groups {
-    
-    public ValidationResult validateContact(){
-        return new Validator()
-                .add(this::validatePerson)
-                .add(this::validateAddress)
-                .validate();
-    }
-    
-    ValidationResult validatePerson() {
-        return new Validator().add(this::validateName).add(this::validateAge).validate();
-    }
-    
-    ValidationResult validateAddress(){
-        return new Validator().add(this::validateStreet).add(this::validateZipAndTown).validate();
     }
 }
 ```
@@ -109,6 +84,37 @@ public class DependingValueValidation {
     }
 }
 ```
+
+***
+
+### Groups
+
+Group multiple validation processes to one and define separate validation strategies.
+
+In the following example all groups will be executed but if one statement within a group fails, no more statements of
+the group will be executed.
+
+```java
+public class Groups {
+
+    public ValidationResult validateContact() {
+        return new Validator()
+                .groupBuilder()
+                .add(this::validateName)
+                .add(this::validateAge)
+                .setValidateStopOnFirstFail()
+                .build()
+                .groupBuilder()
+                .add(this::validateStreet)
+                .add(this::validateZipAndTown)
+                .setValidateStopOnFirstFail()
+                .build()
+                .validate();
+    }
+}
+```
+
+You can also define separate
 
 ***
 
