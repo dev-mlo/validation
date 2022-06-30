@@ -1,6 +1,7 @@
 package de.mlo.dev.validation.basic;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -23,6 +24,18 @@ public class ValidatorGroup extends Validator {
 
     ValidatorGroup(Validator parent) {
         this.parent = Objects.requireNonNull(parent);
+    }
+
+    @NotNull
+    @Override
+    public ValidatorGroup add(@Nullable ValidationStatement statement) {
+        return (ValidatorGroup) super.add(statement);
+    }
+
+    @NotNull
+    @Override
+    public ValidatorGroup add(@Nullable ValidationSummarizer validationSummarizer) {
+        return (ValidatorGroup) super.add(validationSummarizer);
     }
 
     @Override
@@ -48,4 +61,6 @@ public class ValidatorGroup extends Validator {
     public ValidatorGroup setValidationRunner(@NotNull ValidationRunner validationRunner) {
         return (ValidatorGroup) super.setValidationRunner(validationRunner);
     }
+
+
 }
