@@ -2,6 +2,7 @@ module de.mlo.dev.validation {
     requires org.apache.logging.log4j;
     requires lombok;
     requires org.jetbrains.annotations;
+    requires java.validation;
     exports de.mlo.dev.validation;
     exports de.mlo.dev.validation.value;
     exports de.mlo.dev.validation.basic;

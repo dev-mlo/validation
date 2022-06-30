@@ -43,7 +43,7 @@ import java.util.Objects;
  *
  * @author mlo
  */
-public class ValueValidator<V> implements ValueValidationSummarizer<V> {
+public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSummarizer<V> {
     /**
      * The list contains {@link ValueValidationSummarizer} which has to be executed
      * from a {@link ValueValidationRunner}
