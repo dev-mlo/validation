@@ -13,8 +13,9 @@ import java.util.stream.Stream;
  * @author mlo
  */
 public class ValidationMessage implements Comparable<ValidationMessage> {
-    private static final ValidationMessage EMPTY = new ValidationMessage(null, null);
+    private static final ValidationMessage EMPTY = new ValidationMessage(null, null, null);
     private static final Object[] EMPTY_PARAMETERS = new Object[0];
+    private final String field;
     private final String text;
     private final Object[] parameters;
     private final String code;
@@ -28,7 +29,8 @@ public class ValidationMessage implements Comparable<ValidationMessage> {
      * @param parameters The arguments for the placeholders. The amount of arguments should match the number of
      *                   placeholders from the text template
      */
-    public ValidationMessage(@Nullable String code, @Nullable String text, @Nullable Object... parameters) {
+    public ValidationMessage(@Nullable String field, @Nullable String code, @Nullable String text, @Nullable Object... parameters) {
+        this.field = field;
         this.code = code;
         this.text = text;
         this.parameters = Objects.requireNonNullElse(parameters, EMPTY_PARAMETERS);
@@ -42,8 +44,8 @@ public class ValidationMessage implements Comparable<ValidationMessage> {
      * @return A new instance of a {@link ValidationMessage}
      */
     @NotNull
-    public static ValidationMessage of(@Nullable String code, @Nullable String text) {
-        return new ValidationMessage(code, text);
+    public static ValidationMessage of(@Nullable String field, @Nullable String code, @Nullable String text) {
+        return new ValidationMessage(field, code, text);
     }
 
     /**
@@ -62,7 +64,18 @@ public class ValidationMessage implements Comparable<ValidationMessage> {
      */
     @NotNull
     public static ValidationMessage justCode(@Nullable String code) {
-        return of(code, null);
+        return of(null, code, null);
+    }
+
+    /**
+     * Creates a new {@link ValidationMessage} with a technical code and the affected data field
+     *
+     * @param code A technical code which represents the message text
+     * @return A new instance of {@link ValidationMessage}
+     */
+    @NotNull
+    public static ValidationMessage justCode(@Nullable String field, @Nullable String code) {
+        return of(field, code, null);
     }
 
     /**
@@ -73,7 +86,18 @@ public class ValidationMessage implements Comparable<ValidationMessage> {
      */
     @NotNull
     public static ValidationMessage justText(@Nullable String text) {
-        return of(null, text);
+        return of(null, null, text);
+    }
+
+    /**
+     * Creates a new {@link ValidationMessage} with a text and the affected data field
+     *
+     * @param text The text should be a detailed message about the failed or succeed validation part.
+     * @return A new instance of {@link ValidationMessage}
+     */
+    @NotNull
+    public static ValidationMessage justText(@Nullable String field, @Nullable String text) {
+        return of(field, null, text);
     }
 
     /**
@@ -88,12 +112,30 @@ public class ValidationMessage implements Comparable<ValidationMessage> {
      */
     @NotNull
     public static ValidationMessage formattedText(@NotNull String text, Object... args) {
-        return formatted(null, text, args);
+        return formatted(null, null, text, args);
+    }
+
+    /**
+     * Creates a new {@link ValidationMessage} with a text template with parameters.
+     *
+     * @param field The affected field. The field name can be inserted into the text by adding the
+     *              placeholder "{field}" to the text. {field} will be replaced by the given String
+     * @param text  A text template which can contain placeholders from {@link String#format(String, Object...)}
+     *              and {@link MessageFormat#format(String, Object...)} like "%s" and "{0}". The text should
+     *              be a detailed message about the failed or succeed validation part.
+     * @param args  The arguments for the placeholders. The amount of arguments should match the number of
+     *              placeholders from the text template
+     * @return A new instance of {@link ValidationMessage}
+     */
+    @NotNull
+    public static ValidationMessage formattedText(String field, @NotNull String text, Object... args) {
+        return formatted(field, null, text, args);
     }
 
     /**
      * Creates a new {@link ValidationMessage} with a technical code und a text template with parameters.
      *
+     * @param field The affected field
      * @param code A technical code which represents the message text
      * @param text A text template which can contain placeholders from {@link String#format(String, Object...)}
      *             and {@link MessageFormat#format(String, Object...)} like "%s" and "{0}"
@@ -102,15 +144,19 @@ public class ValidationMessage implements Comparable<ValidationMessage> {
      * @return A new instance of {@link ValidationMessage}
      */
     @NotNull
-    public static ValidationMessage formatted(@Nullable String code, @NotNull String text, @NotNull Object... args) {
-        return new ValidationMessage(code, text, args);
+    public static ValidationMessage formatted(@Nullable String field, @Nullable String code,
+                                              @NotNull String text, @NotNull Object... args) {
+        return new ValidationMessage(field, code, text, args);
     }
 
-    private static String format(String format, Object... args) {
+    private static String format(String field, String format, Object... args) {
         if (args == null || format == null) {
             return format;
         }
         String msg = String.format(format, args);
+        if (field != null) {
+            msg = msg.replace("{field}", field);
+        }
         msg = MessageFormat.format(msg, args);
         return msg;
     }
@@ -132,7 +178,7 @@ public class ValidationMessage implements Comparable<ValidationMessage> {
      */
     @Nullable
     public String getText() {
-        return format(text, parameters);
+        return format(field, text, parameters);
     }
 
     /**
@@ -180,6 +226,11 @@ public class ValidationMessage implements Comparable<ValidationMessage> {
     @Nullable
     public String getCode() {
         return code;
+    }
+
+    @Nullable
+    public String getField() {
+        return field;
     }
 
     public boolean isEmpty() {

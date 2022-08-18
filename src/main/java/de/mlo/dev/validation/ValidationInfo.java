@@ -69,6 +69,11 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
     }
 
     @NotNull
+    public static ValidationInfo valid(String field, @Nullable String text) {
+        return valid(ValidationMessage.justText(field, text));
+    }
+
+    @NotNull
     public static ValidationInfo valid(@Nullable ValidationMessage message) {
         return new ValidationInfo(true, message);
     }
@@ -94,12 +99,29 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
         return new ValidationInfo(false, ValidationMessage.justText(text));
     }
 
+    @NotNull
     public static ValidationInfo invalidCode(@Nullable String code) {
         return new ValidationInfo(false, ValidationMessage.justCode(code));
     }
 
-    public static ValidationInfo invalidCode(@Nullable String code, String message) {
-        return new ValidationInfo(false, ValidationMessage.of(code, message));
+    @NotNull
+    public static ValidationInfo invalidCode(@Nullable String code, @Nullable String message) {
+        return new ValidationInfo(false, ValidationMessage.of(null, code, message));
+    }
+
+    @NotNull
+    public static ValidationInfo invalidField(@Nullable String field, @Nullable String message){
+        return invalid(ValidationMessage.justText(field, message));
+    }
+
+    @NotNull
+    public static ValidationInfo invalidFieldCode(@Nullable String field, @Nullable String code){
+        return invalid(ValidationMessage.justCode(field, code));
+    }
+
+    @NotNull
+    public static ValidationInfo invalidFieldCode(@Nullable String field, @Nullable String code, @Nullable String message){
+        return invalid(ValidationMessage.of(field, code, message));
     }
 
     @NotNull
@@ -172,6 +194,16 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
         return message.getCode();
     }
 
+    /**
+     * The affected field name which was validated. This property is optional.
+     *
+     * @return The affected field name which was validated
+     */
+    @Nullable
+    public String getField() {
+        return message.getField();
+    }
+
     @Override
     public int compareTo(@NotNull ValidationInfo o) {
         return Comparator.comparing(this::compareValid)
@@ -186,6 +218,7 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
     public static class Builder {
 
         private final boolean valid;
+        private String field;
         private String code;
         private String message;
         private Object[] parameter;
@@ -200,6 +233,11 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
 
         private static Builder invalid() {
             return new Builder(false);
+        }
+
+        public Builder field(String field){
+            this.field = field;
+            return this;
         }
 
         public Builder code(String code) {
@@ -218,7 +256,7 @@ public class ValidationInfo implements Comparable<ValidationInfo> {
         }
 
         public ValidationInfo build() {
-            return new ValidationInfo(valid, new ValidationMessage(code, message, parameter));
+            return new ValidationInfo(valid, new ValidationMessage(field, code, message, parameter));
         }
     }
 }

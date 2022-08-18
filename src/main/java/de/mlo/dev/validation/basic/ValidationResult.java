@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -157,6 +158,30 @@ public class ValidationResult implements Iterable<ValidationInfo> {
                 .map(ValidationInfo::getMessage)
                 .map(ValidationMessage::getCode)
                 .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(TreeSet::new));
+    }
+
+    public Set<String> getFields(){
+        return infos.stream()
+                .map(ValidationInfo::getField)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(TreeSet::new));
+    }
+
+    public Map<String, Set<String>> getFieldMessages(){
+        return getFields().stream()
+                .collect(Collectors.toMap(Function.identity(), this::getMessagesTextList));
+    }
+
+    public List<ValidationMessage> getMessages(String field){
+        return getMessages().stream()
+                .filter(message -> field.equals(message.getField()))
+                .collect(Collectors.toList());
+    }
+
+    public Set<String> getMessagesTextList(String field){
+        return getMessages(field).stream()
+                .map(ValidationMessage::getText)
                 .collect(Collectors.toCollection(TreeSet::new));
     }
 
