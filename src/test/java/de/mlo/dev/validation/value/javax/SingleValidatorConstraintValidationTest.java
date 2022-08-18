@@ -5,7 +5,6 @@ import de.mlo.dev.validation.value.ValueValidator;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.hibernate.validator.HibernateValidator;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author mlo
  */
-class ValidatorConstraintValidationTest {
+class SingleValidatorConstraintValidationTest {
 
     @Test
     void test() {
@@ -42,9 +41,9 @@ class ValidatorConstraintValidationTest {
     @Accessors(chain = true)
     @Setter
     @Getter
-    @ValidatedBy(processor = TestBeanValidator.class)
+    @ValidatedBy(processors = TestBeanValidator.class)
     public static class TestBean{
-        @ValidatedBy(processor = TestFieldValidator.class)
+        @ValidatedBy(processors = TestFieldValidator.class)
         private String testField;
     }
 

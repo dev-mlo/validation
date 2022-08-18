@@ -1,6 +1,9 @@
 package de.mlo.dev.validation.value;
 
+import de.mlo.dev.validation.ValidationInfo;
 import de.mlo.dev.validation.basic.ValidationResult;
+
+import java.util.Collection;
 
 /**
  * @author mlo
@@ -22,6 +25,26 @@ public class ValueValidationResult<V> extends ValidationResult {
         ValueValidationResult<V> wrapped = new ValueValidationResult<>(value);
         wrapped.add(result);
         return wrapped;
+    }
+
+    @Override
+    public ValueValidationResult<V> add(Collection<ValidationInfo> validationInfos) {
+        return (ValueValidationResult<V>) super.add(validationInfos);
+    }
+
+    @Override
+    public ValueValidationResult<V> add(ValidationInfo first, ValidationInfo... more) {
+        return (ValueValidationResult<V>) super.add(first, more);
+    }
+
+    @Override
+    public ValueValidationResult<V> add(ValidationInfo validationInfo) {
+        return (ValueValidationResult<V>) super.add(validationInfo);
+    }
+
+    @Override
+    public ValueValidationResult<V> add(ValidationResult validationResult) {
+        return (ValueValidationResult<V>) super.add(validationResult);
     }
 
     public V getValue() {

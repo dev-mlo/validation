@@ -25,5 +25,12 @@ public @interface ValidatedBy {
 
     Class<? extends Payload>[] payload() default { };
 
-    Class<? extends IsValueValidator<?>> processor();
+    Class<? extends IsValueValidator<?>>[] processors();
+
+    /**
+     * If multiple validators are defined the execution can be done parallel
+     *
+     * @return true, if the given {@link #processors()} should be executed parallel
+     */
+    boolean parallel() default false;
 }
