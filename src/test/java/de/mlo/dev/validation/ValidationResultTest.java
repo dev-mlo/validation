@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -135,7 +135,6 @@ class ValidationResultTest {
         Iterator<ValidationInfo> iterator = result.iterator();
         assertEquals("Success", iterator.next().getMessage().getText());
         assertEquals("Fail", iterator.next().getMessage().getText());
-
         assertFalse(new ValidationResult().iterator().hasNext());
     }
 
@@ -147,7 +146,27 @@ class ValidationResultTest {
                 .add(ValidationInfo.invalid("Fail message"))
                 .add(ValidationInfo.invalidCode("ER-003", "Wrong"))
                 .add(ValidationInfo.valid(ValidationMessage.justCode("WIN-001")));
-        assertTrue(result.getCodes().containsAll(List.of(
-                "ER-001", "ER-002", "ER-003", "WIN-001")));
+        assertThat(result.getCodes()).contains("ER-001", "ER-002", "ER-003", "WIN-001");
+        assertThat(result.getFields()).isEmpty();
+    }
+
+    @Test
+    void testFields(){
+        ValidationResult result = new ValidationResult()
+                .add(ValidationInfo.invalidField("name", "Name is empty"))
+                .add(ValidationInfo.invalidFieldCode("age", "ER-001"))
+                .add(ValidationInfo.invalidFieldCode("city", "ER-002", "City is empty"))
+                .add(ValidationInfo.invalid(ValidationMessage.of("zip", "ER-003", "ZIP code is empty")));
+        assertThat(result.getFields()).contains("name", "age", "city", "zip");
+    }
+
+    @Test
+    void testMultipleMessagesPerField(){
+        ValidationResult result = new ValidationResult()
+                .add(ValidationInfo.invalidField("iban", "Invalid format"))
+                .add(ValidationInfo.invalidField("iban", "No country info"));
+        assertThat(result.getFields()).contains("iban");
+        assertThat(result.getMessages("iban")).size().isEqualTo(2);
+        assertThat(result.getMessagesTextList("iban")).contains("Invalid format", "No country info");
     }
 }

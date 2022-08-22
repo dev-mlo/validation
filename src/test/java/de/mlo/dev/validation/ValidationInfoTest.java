@@ -17,6 +17,7 @@ class ValidationInfoTest {
         assertNotNull(info.getMessage());
         assertNull(info.getMessageText());
         assertNull(info.getMessageCode());
+        assertNull(info.getField());
 
         info = new ValidationInfo(true, ValidationMessage.justText("Successful"));
         assertTrue(info.isValid());
@@ -101,6 +102,13 @@ class ValidationInfoTest {
         assertTrue(info.isInvalid());
         assertEquals("Msg 1", info.getMessageText());
         assertEquals("ER-001", info.getMessageCode());
+        assertEquals(1, info.getMessage().getParameters().length);
+
+        info = ValidationInfo.build(false).code("ER-001").message("Msg {0}").field("name").parameter(1).build();
+        assertTrue(info.isInvalid());
+        assertEquals("Msg 1", info.getMessageText());
+        assertEquals("ER-001", info.getMessageCode());
+        assertEquals("name", info.getField());
         assertEquals(1, info.getMessage().getParameters().length);
     }
 }
