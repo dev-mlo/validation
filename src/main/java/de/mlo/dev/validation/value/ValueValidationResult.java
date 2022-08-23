@@ -27,20 +27,10 @@ public class ValueValidationResult<V> extends ValidationResult {
         return wrapped;
     }
 
-    public V getValue() {
-        return value;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
-    public ValueValidationResult<V> add(ValidationResult validationResult) {
-        return (ValueValidationResult<V>) super.add(validationResult);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public ValueValidationResult<V> add(ValidationInfo validationInfo) {
-        return (ValueValidationResult<V>) super.add(validationInfo);
+    public ValueValidationResult<V> add(Collection<ValidationInfo> validationInfos) {
+        return (ValueValidationResult<V>) super.add(validationInfos);
     }
 
     @SuppressWarnings("unchecked")
@@ -51,7 +41,17 @@ public class ValueValidationResult<V> extends ValidationResult {
 
     @SuppressWarnings("unchecked")
     @Override
-    public ValueValidationResult<V> add(Collection<ValidationInfo> validationInfos) {
-        return (ValueValidationResult<V>) super.add(validationInfos);
+    public ValueValidationResult<V> add(ValidationInfo validationInfo) {
+        return (ValueValidationResult<V>) super.add(validationInfo);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public ValueValidationResult<V> add(ValidationResult validationResult) {
+        return (ValueValidationResult<V>) super.add(validationResult);
+    }
+
+    public V getValue() {
+        return value;
     }
 }

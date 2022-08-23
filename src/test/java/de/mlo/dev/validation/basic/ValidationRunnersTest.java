@@ -16,11 +16,11 @@ class ValidationRunnersTest {
     void testValidateAll() {
         ValidationResult result = ValidationRunners.VALIDATE_ALL.validate(List.of(ValidationResult::new));
         assertTrue(result.isValid());
-        assertEquals(0, result.getInfos().size());
+        assertEquals(0, result.getValidationInfos().size());
 
         result = ValidationRunners.VALIDATE_ALL.validate(List.of(() -> ValidationResult.invalid("Fail")));
         assertTrue(result.isInvalid());
-        assertEquals(1, result.getInfos().size());
+        assertEquals(1, result.getValidationInfos().size());
         assertEquals("Fail", result.getMessage());
 
         result = ValidationRunners.VALIDATE_ALL.validate(List.of(
@@ -28,7 +28,7 @@ class ValidationRunnersTest {
                 () -> ValidationResult.invalid("Fail"),
                 ValidationResult::new));
         assertFalse(result.isValid());
-        assertEquals(1, result.getInfos().size());
+        assertEquals(1, result.getValidationInfos().size());
         assertEquals("Fail", result.getMessage());
     }
 
@@ -36,18 +36,19 @@ class ValidationRunnersTest {
     void testValidateStopOnFirstFail() {
         ValidationResult result = ValidationRunners.VALIDATE_STOP_ON_FIRST_FAIL.validate(List.of(ValidationResult::new));
         assertTrue(result.isValid());
-        assertEquals(0, result.getInfos().size());
+        assertEquals(0, result.getValidationInfos().size());
 
         result = ValidationRunners.VALIDATE_STOP_ON_FIRST_FAIL.validate(List.of(() -> ValidationResult.invalid("Fail")));
         assertTrue(result.isInvalid());
-        assertEquals(1, result.getInfos().size());
+        assertEquals(1, result.getValidationInfos().size());
 
         result = ValidationRunners.VALIDATE_STOP_ON_FIRST_FAIL.validate(List.of(
                 () -> new ValidationResult().add(ValidationInfo.valid("Success")),
                 () -> ValidationResult.invalid("Fail 1"),
                 () -> ValidationResult.invalid("Fail 2")));
         assertFalse(result.isValid());
-        assertEquals(2, result.getInfos().size());
+        assertEquals(1, result.getValidationInfos().size());
+        assertEquals(2, result.getAllValidationInfos().size());
         assertEquals("Success - Fail 1", result.getMessage(" - "));
     }
 }

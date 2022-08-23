@@ -102,7 +102,7 @@ public class Validator implements ValidationSummarizer {
      *      .add(new Validator()
      *          .add(() -> validateName(person.getName())
      *          .add(() -> validateAge(person.getAge()))
-     *      .validateStopOnFirstFail()
+     *      .validateAndStopOnFirstFail()
      * }
      * }</pre>
      *
@@ -140,7 +140,7 @@ public class Validator implements ValidationSummarizer {
      * Runners:
      * <ul>
      *     <li>The default runner executes all added statements</li>
-     *     <li>Use {@link #setValidateStopOnFirstFail()} to apply a runner which stops
+     *     <li>Use {@link #setValidateAndStopOnFirstFail()} to apply a runner which stops
      *     if one statement fails</li>
      *     <li>Use {@link #setValidationRunner(ValidationRunner)} to apply a custom runner</li>
      * </ul>
@@ -156,7 +156,7 @@ public class Validator implements ValidationSummarizer {
     /**
      * Shortcut for
      * <pre>{@code
-     * validator.setValidateStopOnFirstFail().validate();
+     * validator.setValidateAndStopOnFirstFail().validate();
      * }</pre>
      * Executes the added {@link ValidationStatement}s in the order they have been
      * added until the first {@link ValidationStatement} fail. If a single statement
@@ -170,8 +170,8 @@ public class Validator implements ValidationSummarizer {
      * or only one information which indicates that the validation failed.
      */
     @NotNull
-    public ValidationResult validateStopOnFirstFail() {
-        return setValidateStopOnFirstFail().validate();
+    public ValidationResult validateAndStopOnFirstFail() {
+        return setValidateAndStopOnFirstFail().validate();
     }
 
     /**
@@ -202,7 +202,7 @@ public class Validator implements ValidationSummarizer {
      * @return An aggregated {@link ValidationResult}
      */
     @NotNull
-    public Validator setValidateStopOnFirstFail() {
+    public Validator setValidateAndStopOnFirstFail() {
         return setValidationRunner(ValidationRunners.VALIDATE_STOP_ON_FIRST_FAIL);
     }
 

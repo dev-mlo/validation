@@ -14,14 +14,14 @@ For Maven
 <dependency>
     <groupId>de.mlo-dev</groupId>
     <artifactId>validation</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
 For Gradle
 
 ```gradle
-implementation group: 'de.mlo-dev', name: 'validation', version: '0.3.0'
+implementation group: 'de.mlo-dev', name: 'validation', version: '0.4.0'
 ```
 
 If you are using Java modules:
@@ -70,7 +70,7 @@ public class PersonValidator {
 
 ### Value dependencies
 
-Validate data that depends on each other using ```setValidateStopOnFirstFail```.
+Validate data that depends on each other using ```setValidateAndStopOnFirstFail```.
 
 ```java
 public class DependingValueValidation {
@@ -79,7 +79,7 @@ public class DependingValueValidation {
                 .add(() -> validateNull(person))
                 .add(() -> validateName(person.getName())) // Won't be executed if 'person' was null
                 .add(() -> validateAddress(person.getAddress())) // Won't be executed if 'person' was null or 'name' was empty
-                .setValidateStopOnFirstFail()
+                .setValidateAndStopOnFirstFail()
                 .validate();
     }
 }
@@ -102,12 +102,12 @@ public class Groups {
                 .groupBuilder()
                 .add(this::validateName)
                 .add(this::validateAge)
-                .setValidateStopOnFirstFail()
+                .setValidateAndStopOnFirstFail()
                 .build()
                 .groupBuilder()
                 .add(this::validateStreet)
                 .add(this::validateZipAndTown)
-                .setValidateStopOnFirstFail()
+                .setValidateAndStopOnFirstFail()
                 .build()
                 .validate();
     }
