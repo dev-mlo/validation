@@ -30,7 +30,8 @@ class ValidatorTest {
                 .add(successValidator)
                 .validate();
         assertTrue(result.isInvalid());
-        assertEquals(4, result.getInfos().size());
+        assertEquals(4, result.getAllValidationInfos().size());
+        assertEquals(2, result.getValidationInfos().size());
         assertEquals("Fail 1", result.getMessages().get(0).getText());
         assertEquals("Fail 2", result.getMessages().get(1).getText());
         assertEquals("Success 1", result.getMessages().get(2).getText());
@@ -50,9 +51,9 @@ class ValidatorTest {
         ValidationResult result = new Validator()
                 .add(failValidator)
                 .add(successValidator)
-                .validateStopOnFirstFail();
+                .validateAndStopOnFirstFail();
         assertTrue(result.isInvalid());
-        assertEquals(2, result.getInfos().size());
+        assertEquals(2, result.getValidationInfos().size());
         assertEquals("Fail 1", result.getMessages().get(0).getText());
         assertEquals("Fail 2", result.getMessages().get(1).getText());
     }
@@ -81,9 +82,10 @@ class ValidatorTest {
         ValidationResult result = new Validator()
                 .add(withSubValidator) // <-- Will fail because of the sub-validator
                 .add(failValidator) // <-- Won't be executed
-                .validateStopOnFirstFail();
+                .validateAndStopOnFirstFail();
         assertTrue(result.isInvalid());
-        assertEquals(4, result.getInfos().size());
+        assertEquals(4, result.getAllValidationInfos().size());
+        assertEquals(2, result.getValidationInfos().size());
         assertEquals("Success 1", result.getMessages().get(0).getText());
         assertEquals("Success 2", result.getMessages().get(1).getText());
         assertEquals("Sub fail 1", result.getMessages().get(2).getText());
@@ -97,7 +99,8 @@ class ValidatorTest {
                 .add(failValidator) // <-- Will be executed and fail
                 .validate();
         assertTrue(result.isInvalid());
-        assertEquals(6, result.getInfos().size());
+        assertEquals(6, result.getAllValidationInfos().size());
+        assertEquals(4, result.getValidationInfos().size());
         assertEquals("Success 1", result.getMessages().get(0).getText());
         assertEquals("Success 2", result.getMessages().get(1).getText());
         assertEquals("Sub fail 1", result.getMessages().get(2).getText());
@@ -113,7 +116,8 @@ class ValidatorTest {
                 .add(ValidationInfo::valid)
                 .add(ValidationInfo::valid)
                 .validate();
-        assertEquals(3, result.getInfos().size());
+        assertEquals(3, result.getAllValidationInfos().size());
+        assertEquals(0, result.getValidationInfos().size());
         assertTrue(result.isValid());
 
         result = new Validator()
@@ -121,7 +125,8 @@ class ValidatorTest {
                 .add(() -> ValidationInfo.invalid("Fail"))
                 .add(ValidationInfo::valid)
                 .validate();
-        assertEquals(3, result.getInfos().size());
+        assertEquals(3, result.getAllValidationInfos().size());
+        assertEquals(1, result.getValidationInfos().size());
         assertTrue(result.isInvalid());
     }
 
@@ -131,8 +136,9 @@ class ValidatorTest {
                 .add(ValidationInfo::valid)
                 .add(ValidationInfo::valid)
                 .add(ValidationInfo::valid)
-                .validateStopOnFirstFail();
-        assertEquals(3, result.getInfos().size());
+                .validateAndStopOnFirstFail();
+        assertEquals(3, result.getAllValidationInfos().size());
+        assertEquals(0, result.getValidationInfos().size());
         assertTrue(result.isValid());
 
         ValidationStatement thirdStatement = mock(ValidationStatement.class);
@@ -140,8 +146,9 @@ class ValidatorTest {
                 .add(ValidationInfo::valid)
                 .add(() -> ValidationInfo.invalid("Fail"))
                 .add(thirdStatement)
-                .validateStopOnFirstFail();
-        assertEquals(2, result.getInfos().size());
+                .validateAndStopOnFirstFail();
+        assertEquals(2, result.getAllValidationInfos().size());
+        assertEquals(1, result.getValidationInfos().size());
         assertTrue(result.isInvalid());
         verify(thirdStatement, times(0)).execute();
     }
@@ -165,7 +172,8 @@ class ValidatorTest {
                 .build()
                 .validate();
         assertTrue(result.isValid());
-        assertEquals(2, result.getInfos().size());
+        assertEquals(2, result.getAllValidationInfos().size());
+        assertEquals(0, result.getValidationInfos().size());
         assertEquals(0, result.getMessages().size());
         assertEquals(0, result.getMessagesTextList().size());
 
@@ -176,8 +184,9 @@ class ValidatorTest {
                 .add(() -> ValidationInfo.invalid("Fail"))
                 .build()
                 .add(ValidationInfo::valid)
-                .validateStopOnFirstFail();
-        assertEquals(1, result.getInfos().size());
+                .validateAndStopOnFirstFail();
+        assertEquals(1, result.getAllValidationInfos().size());
+        assertEquals(1, result.getValidationInfos().size());
         assertEquals(1, result.getMessages().size());
         assertEquals(1, result.getMessagesTextList().size());
         assertEquals("Fail", result.getMessage());
@@ -190,16 +199,17 @@ class ValidatorTest {
                 .add(() -> ValidationInfo.valid("Valid Group 1.1"))
                 .add(() -> ValidationInfo.invalid("Fail Group 1.1"))
                 .add(() -> ValidationInfo.valid("Valid Group 1.2: Wont be execute due to previous fail"))
-                .setValidateStopOnFirstFail()
+                .setValidateAndStopOnFirstFail()
                 .build()
                 .groupBuilder()
                 .add(() -> ValidationInfo.valid("Valid Group 2.1"))
                 .add(() -> ValidationInfo.invalid("Fail Group 2.1"))
                 .add(() -> ValidationInfo.valid("Valid Group 2.2: Wont be execute due to previous fail"))
-                .setValidateStopOnFirstFail()
+                .setValidateAndStopOnFirstFail()
                 .build()
                 .validate();
-        assertEquals(4, result.getInfos().size());
+        assertEquals(4, result.getAllValidationInfos().size());
+        assertEquals(2, result.getValidationInfos().size());
         assertEquals(4, result.getMessages().size());
         assertEquals(4, result.getMessagesTextList().size());
         assertTrue(result.getMessagesTextList().containsAll(List.of(
@@ -216,7 +226,7 @@ class ValidatorTest {
                 .add(() -> ValidationInfo.valid("Valid Group 1.1.1"))
                 .add(() -> ValidationInfo.invalid("Fail Group 1.1.1"))
                 .add(() -> ValidationInfo.valid("Valid Group 1.1.2: Wont be executed due to previous fail"))
-                .setValidateStopOnFirstFail()
+                .setValidateAndStopOnFirstFail()
                 .build()
                 .add(() -> ValidationInfo.invalid("Fail Group 1.1"))
                 .add(() -> ValidationInfo.valid("Valid Group 1.2"))
@@ -224,7 +234,8 @@ class ValidatorTest {
                 .build()
                 .add(() -> ValidationInfo.valid("Root Validator 2"))
                 .validate();
-        assertEquals(7, result.getInfos().size());
+        assertEquals(7, result.getAllValidationInfos().size());
+        assertEquals(2, result.getValidationInfos().size());
         assertEquals(7, result.getMessages().size());
         assertEquals(7, result.getMessagesTextList().size());
         assertTrue(result.getMessagesTextList().containsAll(List.of(

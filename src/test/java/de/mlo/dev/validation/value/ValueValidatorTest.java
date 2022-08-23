@@ -15,7 +15,7 @@ class ValueValidatorTest {
         ValueValidationResult<Object> result = new ValueValidator<>()
                 .validate("Test");
         assertTrue(result.isValid());
-        assertTrue(result.getInfos().isEmpty());
+        assertTrue(result.getValidationInfos().isEmpty());
     }
 
     /**
@@ -51,7 +51,7 @@ class ValueValidatorTest {
                 .add((s) -> ValidationInfo.valid("1"))
                 .add((s) -> ValidationInfo.invalid("2"))
                 .add((s) -> ValidationInfo.valid("3"))
-                .setValidateStopOnFirstFail()
+                .setValidateAndStopOnFirstFail()
                 .build();
         ValueValidationResult<String> result = validator.validate("Test");
         assertTrue(result.getMessagesTextList().contains("1"));
@@ -61,7 +61,7 @@ class ValueValidatorTest {
                 .add((s) -> ValidationInfo.valid("4"))
                 .add((s) -> ValidationInfo.invalid("5"))
                 .add((s) -> ValidationInfo.valid("6"))
-                .setValidateStopOnFirstFail()
+                .setValidateAndStopOnFirstFail()
                 .build();
 
         result = validator.validate("Test");
@@ -81,11 +81,11 @@ class ValueValidatorTest {
                 .add((s) -> ValidationInfo.valid("1"))
                 .add((s) -> ValidationInfo.invalid("2"))
                 .add((s) -> ValidationInfo.valid("3"))
-                .setValidateStopOnFirstFail()
+                .setValidateAndStopOnFirstFail()
                 .add((s) -> ValidationInfo.valid("4"))
                 .add((s) -> ValidationInfo.invalid("5"))
                 .add((s) -> ValidationInfo.valid("6"))
-                .setValidateStopOnFirstFail()
+                .setValidateAndStopOnFirstFail()
                 .build()
                 .validateStopOnFirstFail("Test");
         assertTrue(result.getMessagesTextList().contains("1"));

@@ -17,7 +17,7 @@ class ValidationResultTest {
     @Test
     void testDefault() {
         ValidationResult result = new ValidationResult();
-        assertTrue(result.getInfos().isEmpty());
+        assertTrue(result.getValidationInfos().isEmpty());
         assertTrue(result.isValid());
         assertFalse(result.isInvalid());
         assertTrue(result.getMessage().isBlank());
@@ -29,12 +29,13 @@ class ValidationResultTest {
     void testCreateInvalid() {
         ValidationResult result = ValidationResult.invalid("Fail 1");
         assertTrue(result.isInvalid());
-        assertEquals(1, result.getInfos().size());
+        assertEquals(1, result.getValidationInfos().size());
         assertEquals("Fail 1", result.getMessage());
 
         result.add(ValidationInfo.valid());
         assertTrue(result.isInvalid());
-        assertEquals(2, result.getInfos().size());
+        assertEquals(2, result.getAllValidationInfos().size());
+        assertEquals(1, result.getValidationInfos().size());
         assertEquals("Fail 1", result.getMessage());
     }
 
@@ -45,7 +46,8 @@ class ValidationResultTest {
         assertTrue(result.isValid());
         assertTrue(result.getMessage().isBlank());
         assertTrue(result.getMessage("\n").isBlank());
-        assertEquals(1, result.getInfos().size());
+        assertEquals(1, result.getAllValidationInfos().size());
+        assertEquals(0, result.getValidationInfos().size());
         assertEquals(0, result.getMessages().size());
         assertTrue(result.getMessagesTextList().isEmpty());
 
@@ -53,7 +55,8 @@ class ValidationResultTest {
         assertTrue(result.isInvalid());
         assertEquals("Fail 1", result.getMessage());
         assertEquals("Fail 1", result.getMessage("\n"));
-        assertEquals(2, result.getInfos().size());
+        assertEquals(2, result.getAllValidationInfos().size());
+        assertEquals(1, result.getValidationInfos().size());
         assertEquals(1, result.getMessages().size());
         assertEquals(1, result.getMessagesTextList().size());
 
@@ -63,7 +66,8 @@ class ValidationResultTest {
         assertTrue(result.getMessage().contains("Fail 2"));
         assertTrue(result.getMessage("\n").contains("Fail 1"));
         assertTrue(result.getMessage("\n").contains("Fail 1"));
-        assertEquals(3, result.getInfos().size());
+        assertEquals(3, result.getAllValidationInfos().size());
+        assertEquals(2, result.getValidationInfos().size());
         assertEquals(2, result.getMessages().size());
         assertEquals(2, result.getMessagesTextList().size());
     }
@@ -78,7 +82,8 @@ class ValidationResultTest {
         assertTrue(result.isInvalid());
         assertEquals("Fail 1", result.getMessage());
         assertEquals("Fail 1", result.getMessage("\n"));
-        assertEquals(3, result.getInfos().size());
+        assertEquals(3, result.getAllValidationInfos().size());
+        assertEquals(1, result.getValidationInfos().size());
         assertEquals(1, result.getMessages().size());
         assertEquals(1, result.getMessagesTextList().size());
 
@@ -95,7 +100,8 @@ class ValidationResultTest {
         assertTrue(result.isInvalid());
         assertEquals("Fail 1", result.getMessage());
         assertEquals("Fail 1", result.getMessage("\n"));
-        assertEquals(3, result.getInfos().size());
+        assertEquals(3, result.getAllValidationInfos().size());
+        assertEquals(1, result.getValidationInfos().size());
         assertEquals(1, result.getMessages().size());
         assertEquals(1, result.getMessagesTextList().size());
     }
@@ -112,7 +118,8 @@ class ValidationResultTest {
                 .add(firstResult)
                 .add(secondResult);
         assertTrue(aggregated.isValid());
-        assertEquals(2, aggregated.getInfos().size());
+        assertEquals(2, aggregated.getAllValidationInfos().size());
+        assertEquals(0, aggregated.getValidationInfos().size());
         assertEquals(0, aggregated.getMessages().size());
         assertEquals(0, aggregated.getMessagesTextList().size());
         assertTrue(aggregated.getMessage().isBlank());
@@ -121,7 +128,8 @@ class ValidationResultTest {
                 .add(ValidationInfo.invalid("Fail"));
         aggregated.add(invalidResult);
         assertTrue(aggregated.isInvalid());
-        assertEquals(3, aggregated.getInfos().size());
+        assertEquals(3, aggregated.getAllValidationInfos().size());
+        assertEquals(1, aggregated.getValidationInfos().size());
         assertEquals(1, aggregated.getMessages().size());
         assertEquals(1, aggregated.getMessagesTextList().size());
         assertEquals("Fail", aggregated.getMessage());

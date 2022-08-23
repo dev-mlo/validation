@@ -106,10 +106,19 @@ public class ValidationResult implements Iterable<ValidationInfo> {
     }
 
     /**
+     * @return All added INVALID {@link ValidationInfo}. The order is maintained.
+     */
+    public List<ValidationInfo> getValidationInfos() {
+        return infos.stream()
+                .filter(ValidationInfo::isInvalid)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * @return All added {@link ValidationInfo}. The order is maintained.
      */
-    public List<ValidationInfo> getInfos() {
-        return new ArrayList<>(infos);
+    public List<ValidationInfo> getAllValidationInfos(){
+       return new ArrayList<>(infos);
     }
 
     /**

@@ -52,8 +52,8 @@ public class ValueValidatorGroup<V> extends ValueValidator<V> {
 
     @NotNull
     @Override
-    public ValueValidatorGroup<V> setValidateStopOnFirstFail() {
-        return (ValueValidatorGroup<V>) super.setValidateStopOnFirstFail();
+    public ValueValidatorGroup<V> setValidateAndStopOnFirstFail() {
+        return (ValueValidatorGroup<V>) super.setValidateAndStopOnFirstFail();
     }
 
     @NotNull

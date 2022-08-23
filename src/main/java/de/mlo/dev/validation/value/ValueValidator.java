@@ -152,7 +152,7 @@ public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSu
      * Runners:
      * <ul>
      *     <li>The default runner executes all added statements</li>
-     *     <li>Use {@link #setValidateStopOnFirstFail()} to apply a runner which stops
+     *     <li>Use {@link #setValidateAndStopOnFirstFail()} to apply a runner which stops
      *     if one statement fails</li>
      *     <li>Use {@link #setValidationRunner(ValueValidationRunner)} to apply a custom runner</li>
      * </ul>
@@ -168,7 +168,7 @@ public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSu
     /**
      * Shortcut for
      * <pre>{@code
-     * validator.setValidateStopOnFirstFail().validate();
+     * validator.setValidateAndStopOnFirstFail().validate();
      * }</pre>
      * Executes the added {@link ValueValidationStatement}s in the order they have been
      * added until the first {@link ValueValidationStatement} fail. If a single statement
@@ -183,7 +183,7 @@ public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSu
      */
     @NotNull
     public ValueValidationResult<V> validateStopOnFirstFail(V value) {
-        return setValidateStopOnFirstFail().validate(value);
+        return setValidateAndStopOnFirstFail().validate(value);
     }
 
     /**
@@ -214,7 +214,7 @@ public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSu
      * @return An aggregated {@link ValueValidationResult}
      */
     @NotNull
-    public ValueValidator<V> setValidateStopOnFirstFail() {
+    public ValueValidator<V> setValidateAndStopOnFirstFail() {
         return setValidationRunner(ValueValidationRunners::validateStopOnFirstFail);
     }
 

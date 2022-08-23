@@ -46,8 +46,8 @@ public class ValidatorGroup extends Validator {
 
     @Override
     @NotNull
-    public ValidatorGroup setValidateStopOnFirstFail() {
-        return (ValidatorGroup) super.setValidateStopOnFirstFail();
+    public ValidatorGroup setValidateAndStopOnFirstFail() {
+        return (ValidatorGroup) super.setValidateAndStopOnFirstFail();
     }
 
     @Override
