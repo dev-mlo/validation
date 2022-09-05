@@ -8,6 +8,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * The {@link ValueValidator} helps to group, chain and execute {@link ValueValidationStatement}s.
@@ -44,6 +46,7 @@ import java.util.Objects;
  * @author mlo
  */
 public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSummarizer<V> {
+
     /**
      * The list contains {@link ValueValidationSummarizer} which has to be executed
      * from a {@link ValueValidationRunner}
@@ -55,6 +58,21 @@ public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSu
      * statements are executed.
      */
     private ValueValidationRunner<V> validationRunner = ValueValidationRunners::validateAll;
+    private ValueValidator<?> parentValidator;
+
+    public ValueValidator(){
+
+    }
+
+    private <P> ValueValidator(ValueValidator<P> parentValidator, Function<P, V> mapper){
+        parentValidator.addSummarizer(p -> validate(mapper.apply(p)));
+        this.parentValidator = parentValidator;
+    }
+
+    private ValueValidator(ValueValidator<?> parentValidator, Supplier<V> mapper){
+        parentValidator.addSummarizer(p -> validate(mapper.get()));
+        this.parentValidator = parentValidator;
+    }
 
     /**
      * Use this factory method to avoid casting.
@@ -86,7 +104,7 @@ public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSu
      * }</pre>
      * <hr>
      * For more complex stuff like grouping and nesting you can use the other
-     * {@link #add(ValueValidationSummarizer) add} function which accepts whole
+     * {@link #addSummarizer(ValueValidationSummarizer) add} function which accepts whole
      * {@link ValueValidator valdiators} and {@link ValueValidationResult results}.
      *
      * @param statement A new statement to add to the end of the list of statements.
@@ -95,7 +113,7 @@ public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSu
      */
     @NotNull
     public ValueValidator<V> add(@Nullable ValueValidationStatement<V> statement) {
-        return add((ValueValidationSummarizer<V>) statement);
+        return addSummarizer(statement);
     }
 
     /**
@@ -124,7 +142,7 @@ public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSu
      * @return The instance of this validator
      */
     @NotNull
-    public ValueValidator<V> add(@Nullable ValueValidationSummarizer<V> validationSummarizer) {
+    public ValueValidator<V> addSummarizer(@Nullable ValueValidationSummarizer<V> validationSummarizer) {
         if (validationSummarizer != null) {
             aggregators.add(validationSummarizer);
         }
@@ -182,7 +200,7 @@ public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSu
      * @return The result of the validation process.
      */
     @NotNull
-    public ValueValidationResult<V> validateStopOnFirstFail(V value) {
+    public ValueValidationResult<V> validateAndStopOnFirstFail(V value) {
         return setValidateAndStopOnFirstFail().validate(value);
     }
 
@@ -233,6 +251,146 @@ public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSu
     }
 
     /**
+     * <p>
+     * Allows you to switch the value within your bean by using a mapping function
+     * </p>
+     * Example:
+     * <pre>{@code
+     * new ValueValidator<Foo>()
+     *  .add(Statements::notNull)
+     *  .switchValue(foo -> foo.getBar()) // <-- Type switches to 'Bar'
+     *  .add(Statements::notNull)
+     *  .setValidateAndStopOnFirstFail()
+     *  .validate(fooBean);
+     * }</pre>
+     *
+     * <p>
+     * Hint: If you use {@link #setValidateAndStopOnFirstFail()} the mapping function
+     * wont be executed, if the validation has failed while executing the previous
+     * statements.
+     * </p>
+     *
+     * @param mapper The mapper is used to switch value within a bean
+     * @return A new {@link ValueValidator}. The type of the new validator is the
+     * type of the value you switched too.
+     * @param <P> Type of the value you would like to switch too
+     */
+    @NotNull
+    public <P> ValueValidator<P> switchValue(Function<V, P> mapper){
+        return new ValueValidator<>(this, mapper);
+    }
+
+    /**
+     * <p>
+     * Allows you to switch to any value by using a supplier
+     * </p>
+     * Example:
+     * <pre>{@code
+     * new ValueValidator<Foo>()
+     *  .add(Statements::notNull)
+     *  .switchValue(() -> "bar") // <-- Type switches to string
+     *  .add(Statements::notNull)
+     *  .setValidateAndStopOnFirstFail()
+     *  .validate(fooBean);
+     * }</pre>
+     *
+     * <p>
+     * Hint: If you use {@link #setValidateAndStopOnFirstFail()} the supplier
+     * wont be executed, if the validation has failed while executing the previous
+     * statements.
+     * </p>
+     *
+     * @param valueSupplier The supplier is used to switch to any other value
+     *                      which may is relevant to your validation process
+     * @return A new {@link ValueValidator}. The type of the new validator is the
+     * type of the value you switched too with the supplier.
+     * @param <P> Type of the value you would like to switch too
+     */
+    @NotNull
+    public <P> ValueValidator<P> switchValue(Supplier<P> valueSupplier){
+        return new ValueValidator<>(this, valueSupplier);
+    }
+
+    /**
+     * <p>
+     * Allows you to switch back to a parent validator if you have used the
+     * {@link #switchValue(Function) switchValue} function.
+     * </p>
+     * <p>
+     * If you neve called a {@link #switchValue(Function) switchValue} function
+     * there wont be parent validator. In this case this function returns the
+     * instance of 'THIS' validator.
+     * </p>
+     * Example:
+     * <pre>{@code
+     * new ValueValidator<Foo>()
+     *  .add(Statements::notNull)
+     *  .switchValue(foo -> foo.getBar()) // <-- Type switches to 'Bar'
+     *  .add(Statements::notNull)
+     *  .setValidateAndStopOnFirstFail()
+     *  .<Foo>switchBack() // <-- Switch back to 'Foo' type
+     *  .validate(fooBean);
+     * }</pre>
+     *
+     * @return The parent validator or 'this' validator if there is no parent
+     * @param <C> The type of the parent validator
+     */
+    @SuppressWarnings("unchecked")
+    @NotNull
+    public <C> ValueValidator<C> switchBack(){
+        return (ValueValidator<C>) Objects.requireNonNullElse(parentValidator, this);
+    }
+
+    /**
+     * <p>
+     * Allows you to switch back to a parent validator if you have used the
+     * {@link #switchValue(Function) switchValue} function.
+     * </p>
+     * <p>
+     * If you neve called a {@link #switchValue(Function) switchValue} function
+     * there wont be parent validator. In this case this function returns the
+     * instance of 'THIS' validator.
+     * </p>
+     * Example:
+     * <pre>{@code
+     * new ValueValidator<Foo>()
+     *  .add(Statements::notNull)
+     *  .switchValue(foo -> foo.getBar()) // <-- Type switches to 'Bar'
+     *  .add(Statements::notNull)
+     *  .setValidateAndStopOnFirstFail()
+     *  .switchBack(Foo.class) // <-- Switch back to 'Foo' type
+     *  .validate(fooBean);
+     * }</pre>
+     *
+     * @param type The type of the parent validator
+     * @return The parent validator or 'this' validator if there is no parent
+     * @param <C> The type of the parent validator
+     */
+    @SuppressWarnings("unused")
+    @NotNull
+    public <C> ValueValidator<C> switchBack(Class<C> type){
+        return switchBack();
+    }
+
+    /**
+     * <p>
+     * If you have used a {@link #switchValue(Function) switchValue} function, this
+     * validator is maybe a child validator. In this case you can obtain the parent
+     * validator by using this function.
+     * </p>
+     * <p>
+     * It is recommended to use one of the {@link #switchBack()} function which also
+     * gives you the parent validator.
+     * </p>
+     *
+     * @return The parent validator if a parent exist.
+     */
+    @Nullable
+    public ValueValidator<?> getParentValidator() {
+        return parentValidator;
+    }
+
+    /**
      * This function ends the group building. Must be overridden in the subclass.
      *
      * @return The subclass should return its parent validator
@@ -240,4 +398,6 @@ public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSu
     ValueValidator<V> build() {
         return this;
     }
+
+
 }

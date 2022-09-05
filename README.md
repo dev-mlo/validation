@@ -121,8 +121,7 @@ You can also define separate
 ## Customization
 
 The validator comes with two modes: validate all or stop on first fail. You can add your own execution logic by setting
-your own ```ValidationRunner``` using
-```Validator.setValidationRunner(...)```.
+your own ```ValidationRunner``` using ```Validator.setValidationRunner(...)```.
 
 ```java
 class CustomRunnerValidation {
@@ -149,13 +148,11 @@ class CustomRunnerValidation {
 Use the ```ValueValidator``` to validate a specific type. This allows you to build reusable Validators.
 
 ```java
-import de.mlo.dev.validation.basic.ValidationResult;
-
 public class PersonValidator {
 
     public static ValueValidator<Person> PERSON_VALIDATOR = createValidator();
 
-    static ValidationResult validate(Person person) {
+    static ValueValidationResult<Person> validate(Person person) {
         return PERSON_VALIDATOR.validate(person);
     }
 
@@ -179,4 +176,30 @@ public class PersonValidator {
         return ValidationInfo.valid(person);
     }
 }
+```
+
+
+***
+
+## Switch
+
+Use the ```switchValue``` function to alter the type of the validator which 
+allows you to validate more complex beans.
+
+```java
+public class Switches {
+
+    public ValueValidationResult<Person> validateContact() {
+        return new ValueValidator<Person>()
+                .add(this::validateName)
+                .add(this::validateAge)
+                .switchValue(person::getAddress) // <-- Switch to type 'Address'
+                .add(this::validateStreet)
+                .add(this::validateZip)
+                .add(this::validateTown)
+                .<Person>switchBack()
+                .validate(person);
+    }
+}
+
 ```

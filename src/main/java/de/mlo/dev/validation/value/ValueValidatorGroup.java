@@ -33,14 +33,14 @@ public class ValueValidatorGroup<V> extends ValueValidator<V> {
 
     @NotNull
     @Override
-    public ValueValidatorGroup<V> add(@Nullable ValueValidationSummarizer<V> validationSummarizer) {
-        return (ValueValidatorGroup<V>) super.add(validationSummarizer);
+    public ValueValidatorGroup<V> addSummarizer(@Nullable ValueValidationSummarizer<V> validationSummarizer) {
+        return (ValueValidatorGroup<V>) super.addSummarizer(validationSummarizer);
     }
 
     @NotNull
     @Override
     public ValueValidator<V> build() {
-        parent.add(this);
+        parent.addSummarizer(this);
         return parent;
     }
 
