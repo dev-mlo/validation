@@ -3,9 +3,9 @@ package de.mlo.dev.validation.value.javax;
 import de.mlo.dev.validation.ValidationMessage;
 import de.mlo.dev.validation.value.IsValueValidator;
 import de.mlo.dev.validation.value.ValueValidationResult;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;

@@ -3,7 +3,7 @@ open module de.mlo.dev.validation {
     requires lombok;
     requires org.jetbrains.annotations;
     requires org.hibernate.validator;
-    requires java.validation;
+    requires jakarta.validation;
     exports de.mlo.dev.validation;
     exports de.mlo.dev.validation.value;
     exports de.mlo.dev.validation.basic;
