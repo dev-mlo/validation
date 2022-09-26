@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -158,8 +159,21 @@ public class ValueValidator<V> implements IsValueValidator<V>, ValueValidationSu
      * @return A new instance of {@link ValueValidatorGroup}. Return to this validator with
      * {@link ValueValidatorGroup#build()}
      */
-    public ValueValidatorGroup<V> groupBuilder() {
+    public ValueValidatorGroup<V, ? extends ValueValidator<V>> groupBuilder() {
         return new ValueValidatorGroup<>(this);
+    }
+
+    /**
+     * Starts a new {@link ValueValidatorConditional conditional validation branch} which
+     * will only be executed if the given condition is met. Finish the condition
+     * by calling {@link ValueValidatorConditional#build() build()}
+     *
+     * @param condition The condition
+     * @return A new instance of {@link ValueValidatorConditional}. Return to this validator
+     * with {@link ValueValidatorConditional#build()}
+     */
+    public ValueValidatorConditional<V, ? extends ValueValidator<V>> conditionBuilder(Predicate<V> condition){
+        return new ValueValidatorConditional<>(this, condition);
     }
 
     /**
