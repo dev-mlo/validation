@@ -3,6 +3,8 @@ package de.mlo.dev.validation.value;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Predicate;
+
 /**
  * <p>
  * The ValueValidatorGroup groups several validation statements.
@@ -17,48 +19,86 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author mlo
  */
-public class ValueValidatorGroup<V> extends ValueValidator<V> {
+public class ValueValidatorGroup<V, P extends ValueValidator<V>> extends ValueValidator<V> {
 
-    private final ValueValidator<V> parent;
+    private final P parent;
 
-    ValueValidatorGroup(ValueValidator<V> parent) {
+    ValueValidatorGroup(P parent) {
         this.parent = parent;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
-    public ValueValidatorGroup<V> add(@Nullable ValueValidationStatement<V> statement) {
-        return (ValueValidatorGroup<V>) super.add(statement);
+    public ValueValidatorGroup<V, P> add(@Nullable ValueValidationStatement<V> statement) {
+        return (ValueValidatorGroup<V, P>) super.add(statement);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
-    public ValueValidatorGroup<V> addSummarizer(@Nullable ValueValidationSummarizer<V> validationSummarizer) {
-        return (ValueValidatorGroup<V>) super.addSummarizer(validationSummarizer);
+    public ValueValidatorGroup<V, P> addSummarizer(@Nullable ValueValidationSummarizer<V> validationSummarizer) {
+        return (ValueValidatorGroup<V, P>) super.addSummarizer(validationSummarizer);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public ValueValidatorGroup<V, ? extends ValueValidatorGroup<V, P>> groupBuilder() {
+        return (ValueValidatorGroup<V, ? extends ValueValidatorGroup<V, P>>) super.groupBuilder();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public ValueValidatorConditional<V, ? extends ValueValidatorGroup<V, P>> conditionBuilder(Predicate<V> condition) {
+        return (ValueValidatorConditional<V, ValueValidatorGroup<V, P>>) super.conditionBuilder(condition);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
-    public ValueValidator<V> build() {
+    public P build() {
         parent.addSummarizer(this);
         return parent;
     }
 
-    @NotNull
     @Override
-    public ValueValidatorGroup<V> setValidateAll() {
-        return (ValueValidatorGroup<V>) super.setValidateAll();
+    public @NotNull ValueValidationResult<V> validate(V value) {
+        return super.validate(value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
-    public ValueValidatorGroup<V> setValidateAndStopOnFirstFail() {
-        return (ValueValidatorGroup<V>) super.setValidateAndStopOnFirstFail();
+    public ValueValidatorGroup<V, P> setValidateAll() {
+        return (ValueValidatorGroup<V, P>) super.setValidateAll();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
-    public ValueValidatorGroup<V> setValidationRunner(@NotNull ValueValidationRunner<V> validationRunner) {
-        return (ValueValidatorGroup<V>) super.setValidationRunner(validationRunner);
+    public ValueValidatorGroup<V, P> setValidateAndStopOnFirstFail() {
+        return (ValueValidatorGroup<V, P>) super.setValidateAndStopOnFirstFail();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public ValueValidatorGroup<V, P> setValidationRunner(@NotNull ValueValidationRunner<V> validationRunner) {
+        return (ValueValidatorGroup<V, P>) super.setValidationRunner(validationRunner);
     }
 }

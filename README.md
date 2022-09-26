@@ -149,7 +149,6 @@ Use the ```ValueValidator``` to validate a specific type. This allows you to bui
 
 ```java
 public class PersonValidator {
-
     public static ValueValidator<Person> PERSON_VALIDATOR = createValidator();
 
     static ValueValidationResult<Person> validate(Person person) {
@@ -178,17 +177,15 @@ public class PersonValidator {
 }
 ```
 
-
 ***
 
 ## Switch
 
-Use the ```switchValue``` function to alter the type of the validator which 
+Use the ```switchValue``` function to alter the type of the validator which
 allows you to validate more complex beans.
 
 ```java
 public class Switches {
-
     public ValueValidationResult<Person> validateContact() {
         return new ValueValidator<Person>()
                 .add(this::validateName)
@@ -202,4 +199,34 @@ public class Switches {
     }
 }
 
+```
+
+***
+
+## Conditional validation
+
+Use conditions to ex- or include validation branches. Start a new condition
+block by using the ```conditionBuilder(<condition>)``` function and finish
+it with ```build()```.
+
+The example below will execute different validation branches depending on
+the country of a given address object. If the address is a german address,
+we will make sure that a valid 'Bundesland' was set. If the address is
+as US one, we make sure the address contains a valid 'State'.
+
+```java
+public class Conditions {
+    public ValueValidationResult<Address> validateAddress() {
+        return new ValueValidator<Address>()
+                .add(this::validateStreet)
+                .add(this::validateTown)
+                .conditionBuilder(address::isGermanAddress) // <-- Validate German specific values
+                .add(this::validateBundesland)
+                .build()
+                .conditionBuilder(address::isUsAddress) // <-- Validate US specific values
+                .add(this::validateState)
+                .build()
+                .validate(address);
+    }
+}
 ```
