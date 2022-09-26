@@ -25,4 +25,22 @@ public class Statements {
         }
         return ValidationInfo.valid();
     }
+
+    public static ValidationInfo betweenExcluded(int numberToTest, int startExcluded, int endExcluded){
+        if(numberToTest <= startExcluded){
+            return ValidationInfo.invalid("Number {0} must be greater than {1}", numberToTest, startExcluded);
+        } else if( numberToTest >= endExcluded){
+            return ValidationInfo.invalid("Number {0} must be lower than {1}", numberToTest, endExcluded);
+        }
+        return ValidationInfo.valid();
+    }
+
+    public static ValidationInfo betweenIncluded(int numberToTest, int startExcluded, int endExcluded){
+        if(numberToTest < startExcluded){
+            return ValidationInfo.invalid("Number {0} must be greater than {1}", numberToTest, startExcluded);
+        } else if( numberToTest > endExcluded){
+            return ValidationInfo.invalid("Number {0} must be lower than {1}", numberToTest, endExcluded);
+        }
+        return ValidationInfo.valid();
+    }
 }

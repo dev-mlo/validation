@@ -96,7 +96,7 @@ class ValueValidatorTest {
     }
 
     @Test
-    void testSwitchValue(){
+    void testSwitchValue() {
         ValueValidator<ParentBean> validator = ValueValidator.create(ParentBean.class)
                 .add(p -> Statements.notBlank(p.header))
                 .switchValue(ParentBean::getChildBean)
@@ -113,7 +113,7 @@ class ValueValidatorTest {
     }
 
     @Test
-    void testSwitchValueAndGroup(){
+    void testSwitchValueAndGroup() {
         ValueValidator<ParentBean> validator = ValueValidator.create(ParentBean.class)
                 .add(p -> Statements.notBlank(p.header)) // 1
                 .switchValue(ParentBean::getChildBean)
@@ -133,7 +133,7 @@ class ValueValidatorTest {
     }
 
     @Test
-    void testSwitchValueWithSupplier(){
+    void testSwitchValueWithSupplier() {
         ValueValidator<Integer> validator = ValueValidator.create(Integer.class)
                 .add(Statements::positive) // 1
                 .switchValue(() -> "")
@@ -147,8 +147,45 @@ class ValueValidatorTest {
         assertThat(result.getValidationInfos()).hasSize(2);
     }
 
+    @Test
+    void testConditional() {
+        ValueValidator<Integer> validator = ValueValidator.create(Integer.class)
+                .conditionBuilder(number -> number > 0)
+                .add(number -> Statements.betweenIncluded(number, 5, 10))
+                .build()
+                .conditionBuilder(number -> number < 0)
+                .add(number -> Statements.betweenIncluded(number, -10, -5))
+                .build()
+                .setValidateAndStopOnFirstFail();
+
+        // 0 is neither bigger than 0 nor lower than 0 so no condition will be met
+        ValueValidationResult<Integer> result = validator.validate(0);
+        assertThat(result.isValid()).isTrue();
+        assertThat(result.getValidationInfos()).hasSize(0);
+
+        // 3 is greater than zero, so it will be testet, if the number is between 5 and 10
+        result = validator.validate(3);
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getValidationInfos()).hasSize(1);
+
+        // 7 is greater than zero, so it will be testet, if the number is between 5 and 10
+        result = validator.validate(7);
+        assertThat(result.isValid()).isTrue();
+        assertThat(result.getValidationInfos()).hasSize(0);
+
+        // -3 is lower than zero, so it will be testet, if the number is between -10 and -5
+        result = validator.validate(-3);
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getValidationInfos()).hasSize(1);
+
+        // -7 is lower than zero, so it will be testet, if the number is between -10 and -5
+        result = validator.validate(-7);
+        assertThat(result.isValid()).isTrue();
+        assertThat(result.getValidationInfos()).hasSize(0);
+    }
+
     @Builder
-    private static class ParentBean{
+    private static class ParentBean {
         private final String header;
         private final String content;
         private final ChildBean childBean;
@@ -158,7 +195,7 @@ class ValueValidatorTest {
         }
     }
 
-    private static class ChildBean{
+    private static class ChildBean {
         String childText;
     }
 }
