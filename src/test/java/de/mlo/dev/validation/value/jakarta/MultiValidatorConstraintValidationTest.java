@@ -1,4 +1,4 @@
-package de.mlo.dev.validation.value.javax;
+package de.mlo.dev.validation.value.jakarta;
 
 public class MultiValidatorConstraintValidationTest {
 }

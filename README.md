@@ -14,14 +14,14 @@ For Maven
 <dependency>
     <groupId>de.mlo-dev</groupId>
     <artifactId>validation</artifactId>
-    <version>0.4.2</version>
+    <version>0.5.0</version>
 </dependency>
 ```
 
 For Gradle
 
 ```gradle
-implementation group: 'de.mlo-dev', name: 'validation', version: '0.4.2'
+implementation group: 'de.mlo-dev', name: 'validation', version: '0.5.0'
 ```
 
 If you are using Java modules:
