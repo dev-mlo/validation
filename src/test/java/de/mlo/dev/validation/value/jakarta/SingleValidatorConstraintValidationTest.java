@@ -1,4 +1,4 @@
-package de.mlo.dev.validation.value.javax;
+package de.mlo.dev.validation.value.jakarta;
 
 import de.mlo.dev.validation.ValidationInfo;
 import de.mlo.dev.validation.value.ValueValidator;

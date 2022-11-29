@@ -7,5 +7,5 @@ open module de.mlo.dev.validation {
     exports de.mlo.dev.validation;
     exports de.mlo.dev.validation.value;
     exports de.mlo.dev.validation.basic;
-    exports de.mlo.dev.validation.value.javax;
+    exports de.mlo.dev.validation.value.jakarta;
 }
